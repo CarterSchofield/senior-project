@@ -1,0 +1,229 @@
+/** Main style sheet for KareShield login page */
+:root { 
+    --primaryColor: #084E5A; 
+    --secondaryColor: #00FFFF; 
+    --headline: #02353C;
+    --darkText: #02353C;
+    --lightText: #EAFAF9;
+    --background: #EAFAF9; 
+    --textLink: #3FD0C9; 
+    --lighterPrimary: #1E6B73;
+    --blueish: #1CB0CA;
+    --midnightSapphire: #0B1623; 
+    --forestShadow: #0E1514; 
+    --blackColor: #191919; 
+    --whiteColor: #f9f9f9; 
+    --transparent: background-color: rgba(255, 255, 255, 0.0);
+    --anotherBlue: #00D1D2;
+    --mainGradient: linear-gradient(90deg, rgba(28,176,202,1) 0%, rgba(46,175,125,1) 100%);
+} 
+/*          
+.btn-grad {
+    background-image: linear-gradient(to right, #1FA2FF 0%, #12D8FA  51%, #1FA2FF  100%);
+    margin: 10px;
+    padding: 15px 45px;
+    text-align: center;
+    text-transform: uppercase;
+    transition: 0.5s;
+    background-size: 200% auto;
+    color: white;            
+    box-shadow: 0 0 20px #eee;
+    border-radius: 10px;
+    display: block;
+}
+
+.btn-grad:hover {
+    background-position: right center; 
+    color: #fff;
+    text-decoration: none;
+}
+*/
+.loginInfo{
+    margin:86px 0;
+    display:grid;
+    grid-column: 1/13;
+    grid-template-columns: repeat(12, 1fr);
+    border-radius: 10px;
+    transition: all 0.6s ease-in-out;
+}
+.registerInfo{
+    margin:86px 0;
+    display:grid;
+    grid-column: 1/13;
+    grid-template-columns: repeat(12, 1fr);
+    border-radius: 10px;
+}
+#loginWelcomeText{
+    grid-row:1/2;
+    grid-column:7/11;
+    background: rgb(0,255,255);
+    background: linear-gradient(90deg, #3FD0C9 0%, rgba(28,176,202,1) 100%);
+    padding:3rem;
+    padding-top:150px;
+    text-align: center !important;
+    align-items: center !important;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.25);
+    border-radius: 0px 20px 20px 0px;
+}
+#loginWelcomeText h1{
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--lightText)
+}
+#loginWelcomeText h3{
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--darkText);
+    color: var(--lightText)
+}
+#loginWelcomeText button{
+    font-size: 1rem;
+    border: 1px solid var(--lightText);
+}
+#loginForm{
+    display:grid;
+    border-radius: 20px 0px 0px 20px;
+    grid-template-columns: repeat(1, 1fr);
+    gap:10px;
+    grid-row:1/2;
+    grid-column: 3/7;
+    background-color: var(--background);
+    padding:3rem;
+    box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.25);
+}
+#loginForm h2{
+    grid-column:1/2;
+    font-size: 1.6rem;
+    font-weight: 400;
+    margin:0px 10px;
+    padding-bottom:10px;
+}
+#loginForm input{
+    margin: 0px 10px;
+    padding:14px 16px;
+    border-radius: 15px;
+    border: none;
+    background-color: #F5F9FF;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.25);
+}
+#loginForm label{
+    font-size: .8rem;
+    font-weight: 550;
+    color: var(--darkText);
+    margin-top:15px;
+    margin-left:10px;
+}
+#loginForm button{
+    background-image: linear-gradient(90deg, #3FD0C9 0%, rgba(28,176,202,1) 100%);
+    margin: 10px;
+    padding: 15px 45px;
+    text-align: center;
+    transition: 0.5s;
+    background-size: 200% auto;
+    color: white;            
+    box-shadow: 0 0 20px #eee;
+    border-radius: 10px;
+    display: block;
+}
+#loginForm a{
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 550;
+    color: var(--lighterPrimary);
+    margin-top:15px;
+    margin-left:10px;
+}
+#loginRemember{
+    float:left
+}         
+
+
+#loginForm button:hover {
+    background-position: right center; /* change the direction of the change here */
+    color: #fff;
+    text-decoration: none;
+}
+
+
+#registerWelcomeText{
+    grid-row:1/2;
+    grid-column: 3/7;
+    background: rgb(0,255,255);
+    background: linear-gradient(90deg, #3FD0C9 0%, rgba(28,176,202,1) 100%);
+    padding:3rem;
+    padding-top:175px;
+    text-align: center !important;
+    align-items: center !important;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.25);
+    border-radius: 20px 0px 0px 20px;
+}
+#registerWelcomeText h1{
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--lightText)
+}
+#registerWelcomeText h3{
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--darkText);
+    color: var(--lightText)
+}
+#registerWelcomeText button{
+    font-size: 1rem;
+    border: 1px solid var(--lightText);
+}
+
+#registerForm{
+    display:grid;
+    border-radius: 0px 20px 20px 0px;
+    grid-template-columns: repeat(1, 1fr);
+    gap:10px;
+    grid-row:1/2;
+    grid-column:7/11;
+    background-color: var(--background);
+    padding:3rem;
+    box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.25);
+}
+#registerForm h2{
+    grid-column:1/2;
+    font-size: 1.6rem;
+    font-weight: 400;
+    margin:0px 10px;
+    padding-bottom:10px;
+}
+#registerForm input{
+    margin: 0px 10px;
+    padding:14px 16px;
+    border-radius: 15px;
+    border: none;
+    background-color: #F5F9FF;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.25);
+}
+#registerForm label{
+    font-size: .8rem;
+    font-weight: 550;
+    color: var(--darkText);
+    margin-top:15px;
+    margin-left:10px;
+}
+#registerForm button{
+    background-image: linear-gradient(90deg, #3FD0C9 0%, rgba(28,176,202,1) 100%);
+    margin: 10px;
+    padding: 15px 45px;
+    text-align: center;
+    transition: 0.5s;
+    background-size: 200% auto;
+    color: white;            
+    box-shadow: 0 0 20px #eee;
+    border-radius: 10px;
+    display: block;
+    letter-spacing: 2px;
+}
+#registerForm a{
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 550;
+    color: var(--lighterPrimary);
+    margin-top:15px;
+    margin-left:10px;
+}

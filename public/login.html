@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <meta name="description" content="">
+    
+    <meta name="keywords" content="KareShield, contractors, reviews, customer reviews, ">
+    <link rel="icon" href="favicon.ico">
+
+    <title>Login | KareShield</title>
+    <!-- Refer to https://www.favicon-generator.org/ to generate favicons -->
+    <link rel="stylesheet" href="./src/styles/style.css">
+    <link rel="stylesheet" href="./src/styles/login.css">
+</head>
+<body>
+    <div id="app"> 
+        <header>
+            <nav class="navbar visible">
+                <a href="index.html" class="logo">
+                    <img id="navLogo" src="./src/assets/Images/logo.png" alt="KareShield Logo">
+                </a>
+                    <div class="nav-items">
+                        <a href="#">About Us</a>
+                        <a href="#">How It Works</a>
+                        <a href="#">Contact Us</a>
+                        <a href="#">FAQs</a>
+                    </div>
+            </nav>
+        </header>
+        <main>
+
+            <div class="grid12">
+                <div v-if="type === 'register'" class="registerInfo">
+                    <!-- Your register info form or content here -->
+                    <div id="registerWelcomeText">
+                        <h1>Welcome to KareShield</h1>
+                        <h3>Already have an account?</h3>
+                        <button @click="loginPageNavigate" class="secondaryButton">Sign In</button>
+                    </div>
+                    <div id="registerForm">
+                        <h2>Create Account</h2>
+                        <label class="label" id="geisterEmail" for="email">EMAIL</label>
+                        <input type="email" id="email" name="email" required placeholder="Email" v-model="existingUserEmail">
+
+                        <label class="label" id="registerPassword" for="password">PASSWORD</label>
+                        <input type="password" id="password" name="password" required placeholder="Password" v-model="existingUserPassword">
+                        <label class="label" id="registerConfirmPassword" for="confirmPassword">CONFIRM PASSWORD</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm Password">
+                        <button @click="register" class="primaryButton">
+                            <span>Continue</span>
+                            <img src="./src/assets/icons/arrow-rightLight.svg" alt="Arrow right Icon">
+                        </button>
+                    </div>
+                </div>
+
+                <div v-else-if="type === 'login'" class="loginInfo">
+                    <div id="loginWelcomeText">    
+                        <h1>Welcome to KareShield</h1>
+                        <h3>Don't have an account?</h3>
+                        <button @click="registerPageNavigate" class="secondaryButton">Sign Up</button>
+                    </div>
+                    <div id="loginForm">
+                        <h2>Sign in</h2>
+                        <label class="label" id="loginEmail" for="email">EMAIL</label>
+                        <input type="email" id="email" name="email" required placeholder="Email">
+
+                        <label class="label" id="loginPassword" for="password">PASSWORD</label>
+                        <input type="password" id="password" name="password" required placeholder="Password">
+                        <button @click="login" class="primaryButton">Sign In</button>
+                        <div class="leftText">
+                            <!-- <label class="label checkboxWrap checkboxPrimary" id="loginRemember" for="remember">Remember Me
+                                <input type="checkbox" id="remember" name="remember">
+                                <span class="checkmark"></span>
+                            </label> -->
+                        </div>
+                        <div class="rightText">
+                            <a href="#" class="textRight" id="loginForgot">Forgot Password</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Site footer -->
+        <svg class="moveDown" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#02353C" fill-opacity="1" d="M0,160L60,170.7C120,181,240,203,360,202.7C480,203,600,181,720,186.7C840,192,960,224,1080,218.7C1200,213,1320,171,1380,149.3L1440,128L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path></svg>
+        <footer class="siteFooter">
+            <!-- <article>
+                <h2>Try KareShield today.</h2>
+                    <p>Sign up free</p>
+                    <button class="primaryButton">
+                        <span>Sign up</span>
+                        <img src="./src/assets/icons/arrow-rightDark.svg" alt="User Icon">
+                    </button>
+            </article> -->
+            <section class="footerTop">
+                <img src="./src/assets/Images/logo.png" alt="KareShield Logo">
+                <ul>
+                    <li>
+                        <h3>Resources</h3>
+                        <a href="#">Pricing</a>
+                        <a href="#">How It Works</a>
+                        <a href="#">Contact Us</a>
+                        <a href="#">FAQs</a>
+                    </li>
+                    <li>
+                        <h3>Company</h3>
+                        <a href="#">About Us</a>
+                        <a href="#">Blog</a>
+                        <a href="#">Partnerships</a>
+                        <a href="#">Careers</a>
+                    </li>
+                    <li>
+                        <h3>Developers</h3>
+                        <a href="#">Forum</a>
+                        <a href="#">Projects</a>
+                        <a href="#">GitHub</a>
+                        <a href="#">Documentation</a>
+                    </li>
+                    <li>
+                        <h3>Legal</h3>
+                        <a href="#">Terms of Service</a>
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Cookie Policy</a>
+                    </li>
+                </ul>
+            </section>
+            <section class="footerBottom">Copyright © 2024, All rights reserved by <span>KareShield</span></section>
+        </footer>
+
+    </div> <!-- ending div for app -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="./src/javascript/app.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="./src/javascript/main.js"></script>
+</body>
+</html>

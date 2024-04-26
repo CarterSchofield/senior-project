@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <meta name="description" content="">
+    <meta name="keywords" content="KareShield, contractors, reviews, customer reviews ">
+    <link rel="icon" href="./src/assets/images/favicon.">
+
+    <title>KareShield</title>
+    <!-- Refer to https://www.favicon-generator.org/ to generate favicons -->
+    <link rel="stylesheet" href="./src/styles/style.css">
+</head>
+<body>
+    <div id="app"> 
+        <header>
+            <nav class="navbar visible">
+                <a href="index.html" class="logo">
+                    <img id="navLogo" src="./src/assets/Images/logo.png" alt="KareShield Logo">
+                </a>
+                    <div class="nav-items">
+                        <a href="#">About Us</a>
+                        <a href="#">How It Works</a>
+                        <a href="#">Contact Us</a>
+                        <a href="#">FAQs</a>
+                        <div v-if="userNotSignedIn" class="signInBtns">
+                            <button @click="registerPageNavigate" class="secondaryButton">Create Account</button>
+                            <button @click="loginPageNavigate" class="primaryButton" id="signedIn">
+                                <img src="./src/assets/icons/user.svg" alt="User Icon">
+                                <span>Sign In</span>
+                            </button>
+                        </div>
+                        <div v-else class="nav-items">
+                            <a href="dashboard.html">Read Reviews</a>
+                            <!-- <button @click="deleteSession" class="secondaryButton" id="signedOut">Sign Out</button> -->
+                            <a href="#" id="toggleUserMenu">
+                                <img src="./src/assets/icons/user-circleLight.svg" alt="Toggle User Menu">
+                            </a>
+                            <div id="userMenu">
+                                <p>{{ user }}Carter</p>
+                                <p>{{business}}Temp Business</p>
+                                <li class="actionList-sectionDivider">
+
+                                </li>
+                                <ul>
+                                    <li>
+                                        <a href="dashboard.html" class="actionListItem">
+                                            <img src="./src/assets/icons/create-dashboardLight.svg" alt="Dashboard Icon" class="icon">
+                                            <span class="linksName">Dashboard</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="actionListItem">
+                                            <img src="./src/assets/icons/shield-checkLight.svg" alt="Write Review Icon" class="icon">
+                                            <span class="linksName">Write Review</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="actionListItem">
+                                            <img src="./src/assets/icons/eyeLight.svg" alt="Read Review Icon" class="icon">
+                                            <span class="linksName">Read Review</span>
+                                        </a>
+                                    </li>
+                                    <li class="actionList-sectionDivider"></li>
+                                    <li>
+                                        <a href="#" class="actionListItem">
+                                            <img src="./src/assets/icons/user-circleLight.svg" alt="Profile Icon" class="icon">
+                                            <span class="linksName">Profile</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="actionListItem">
+                                            <img src="./src/assets/icons/settings2Light.svg" alt="Settings Icon" class="icon">
+                                            <span class="linksName">Settings</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="actionListItem" @click="logout">
+                                            <img src="./src/assets/icons/signoutRed.svg" alt="Logout Icon" class="icon">
+                                            <span class="linksName logout">Logout</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+            </nav>
+        </header>
+
+        <main class="grid12">
+            <div id="topArea">
+                <h1>Welcome to KareShield!</h1>
+                <h2>See what other businesses are saying about your <span>potential customers</span> here!</h2>
+                <h3>Protect yourself and your company by knowing who you’re doing business with, before you ever sign a contract or agree to a bid!</h3>
+                <input type="text" placeholder="Search by name, address, or phone number" id="searchBox">
+                <button class="primaryButton" id="searchButton">Read Reviews</button>
+            </div>
+            <div id="middleArea">
+                <h1>Our Unique Features</h1>
+                <h2>Discover the unique features we've crafted to ensure review quality and integrity as well as user account security</h2>
+                <div id="featuresDiv">
+                    <div class="featuresBackground">
+                        <section id="f-1" class="features">
+                            <div class="featuresIcoCircle">
+                                <img src="./src/assets/icons/serverLight.svg" alt="Verified Reviews Image">
+                            </div>
+                            <h3>Verified Reviews</h3>
+                            <p>Our reviews are verified by our team to ensure that they are from real businesses and not fake accounts.</p>
+                        </section>
+                    </div>
+                    <div class="featuresBackground">
+                        <section id="f-2" class="features">
+                            <div class="featuresIcoCircle">
+                                <img src="./src/assets/icons/shield-checkLight.svg" alt="Secure Accounts Image">
+                            </div>
+                            <h3>Secure User Accounts</h3>
+                            <p>We use the latest encryption technology to ensure that your account information is safe and secure.</p>
+                        </section>
+                    </div>
+
+                    <div class="featuresBackground">
+                        <section id="f-3" class="features">
+                            <div class="featuresIcoCircle">
+                                <img src="./src/assets/icons/check-circleLight.svg" alt="Business Verification Image">
+                            </div>
+                            <h3>Business Verification</h3>
+                            <p>Search our expansive customer database to find reviews on your potential customers.</p>
+                        </section>
+                    </div>
+
+                    <div class="featuresBackground">
+                        <section id="f-4" class="features">
+                            <div class="featuresIcoCircle">
+                                <img src="./src/assets/icons/headphonesLight.svg" alt="Customer Support Image">
+                            </div>
+                            <h3>Customer Support</h3>
+                            <p>Our customer support team is available 24/7 to help you with any questions or concerns you may have.</p>
+                        </section>
+                    </div>
+
+                    <div class="featuresBackground">
+                        <section id="f-5" class="features">
+                            <div class="featuresIcoCircle">
+                                <img src="./src/assets/icons/sitemapLight.svg" alt="Easy to Use Image">
+                            </div>
+                            <h3>Easy to Use</h3>
+                            <p>Our site is easy to navigate and user-friendly, making it simple to find the information you need.</p>
+                        </section>
+                    </div>
+
+                    <div class="featuresBackground">
+                        <section id="f-6" class="features">
+                            <div class="featuresIcoCircle">
+                                <img src="./src/assets/icons/mobileLight.svg" alt="Mobile Friendly Image">
+                            </div>
+                            <h3>Mobile Friendly</h3>
+                            <p>Our site is optimized for mobile devices, so you can access it from anywhere, at any time.</p>
+                        </section>
+                    </div>
+                </div>
+
+
+                <div id="tryItArea">
+                    <h1>Try it free</h1>
+                    <h2>Sign up and gain access to all reviews today!</h2>
+                    <button @click="registerPageNavigate" class="secondaryButton">
+                        <span>Sign up</span>
+                        <img src="./src/assets/icons/arrow-rightLight.svg" alt="Arrow right Icon">
+                    </button>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Site footer -->
+        <svg class="moveDown" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#02353C" fill-opacity="1" d="M0,160L60,170.7C120,181,240,203,360,202.7C480,203,600,181,720,186.7C840,192,960,224,1080,218.7C1200,213,1320,171,1380,149.3L1440,128L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path></svg>
+        <footer class="siteFooter">
+            <!-- <article>
+                <h2>Try KareShield today.</h2>
+                    <p>Sign up free</p>
+                    <button class="primaryButton">
+                        <span>Sign up</span>
+                        <img src="./src/assets/icons/arrow-rightDark.svg" alt="User Icon">
+                    </button>
+            </article> -->
+            <section class="footerTop">
+                <img src="./src/assets/Images/logo.png" alt="KareShield Logo">
+                <ul>
+                    <li>
+                        <h3>Resources</h3>
+                        <a href="#">Pricing</a>
+                        <a href="#">How It Works</a>
+                        <a href="#">Contact Us</a>
+                        <a href="#">FAQs</a>
+                    </li>
+                    <li>
+                        <h3>Company</h3>
+                        <a href="#">About Us</a>
+                        <a href="#">Blog</a>
+                        <a href="#">Partnerships</a>
+                        <a href="#">Careers</a>
+                    </li>
+                    <li>
+                        <h3>Developers</h3>
+                        <a href="#">Forum</a>
+                        <a href="#">Projects</a>
+                        <a href="#">GitHub</a>
+                        <a href="#">Documentation</a>
+                    </li>
+                    <li>
+                        <h3>Legal</h3>
+                        <a href="#">Terms of Service</a>
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Cookie Policy</a>
+                    </li>
+                </ul>
+            </section>
+            <section class="footerBottom">Copyright © 2024, All rights reserved by <span>KareShield</span></section>
+        </footer>
+
+    </div> <!-- ending div for app -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="./src/javascript/app.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="./src/javascript/main.js"></script>
+</body>
+</html>

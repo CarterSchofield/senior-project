@@ -1,0 +1,29 @@
+/** Main style sheet for KareShield dashboard*/
+:root { 
+    --primaryColor: #084E5A; 
+    --secondaryColor: #00FFFF; 
+    --headline: #02353C;
+    --darkText: #02353C;
+    --lightText: #EAFAF9;
+    --background: #EAFAF9; 
+    --textLink: #3FD0C9; 
+    --lighterPrimary: #1E6B73;
+    --blueish: #1CB0CA;
+    --midnightSapphire: #0B1623; 
+    --forestShadow: #0E1514; 
+    --blackColor: #191919; 
+    --whiteColor: #f9f9f9; 
+    --transparent: background-color: rgba(255, 255, 255, 0.0);
+    --anotherBlue: #00D1D2;
+    --mainGradient: linear-gradient(90deg, rgba(28,176,202,1) 0%, rgba(46,175,125,1) 100%);
+    --mediumText: rgba(234,250,249,0.7);
+} 
+
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
