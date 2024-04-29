@@ -19,11 +19,385 @@
     --mediumText: rgba(234,250,249,0.7);
 } 
 
-
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+.readReviews{
+    margin: 86px 0;
+    display: grid;
+    grid-column: 1/13;
+    grid-template-columns: repeat(12, 1fr);
+    gap:16px;
+    border-radius: 10px;
+    transition: all 0.6s ease-in-out;
+    /* background-color: var(--primaryColor); */
 }
 
+#fNameSearchBox{
+    grid-column:3/7;
+    grid-row:2/3;
+}
+#lNameSearchBox{
+    grid-column:7/11;
+    grid-row:2/3;
+}
+#phoneSearchBox{
+    grid-column:3/7;
+    grid-row:3/4;
+}
+#addressSearchBox{
+    grid-column:3/11;
+    grid-row:4/5;
+}
+#workingType{
+    grid-column:7/11;
+    grid-row:3/4;
+    border-radius: 15px;
+    height:50px;
+    padding:4px 25px;
+    border:0;
+    color: gray;
+}
+.reviewSearchButton{
+    grid-column:7/9;
+    grid-row:5/6;
+    margin:0 0;
+    border:none;
+}
+.clearReviewSearchButton{
+    grid-column:5/7;
+    grid-row:5/6;
+    margin:0 0;
+    /* border:none; */
+}
+.searchParams{
+    width:100%;
+    grid-column:1/13;
+    grid-row:2/3;
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap:16px;
+    border-radius: 10px;
+    background-color: var(--primaryColor);
+    padding:10px;
 
+}
+.searchHeader{
+    width:100%;
+    grid-row:1/2;
+    grid-column:1/13;
+    color: var(--lightText);
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: 700;
+    background-color: var(--primaryColor);
+    border-radius: 15px;
+    padding:20px;
+}
+
+.searchHeader h1{
+    grid-column: 1/13;
+    grid-row:1/2;
+    font-size: 2.5em;
+    font-weight: 700;
+    color: var(--lightText);
+}
+.reviewsContainer{
+    grid-column:1/13;
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap:50px;
+    border-radius: 10px;
+    background-color: var(--primaryColor);
+    padding:25px;
+}
+.reviewCardOuter{
+    grid-column:1/13;
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap:16px;
+    border-radius: 10px;
+    background: var(--mainGradient);
+    padding:2px;
+}
+.reviewCard{
+    grid-column:1/13;
+    border-radius: 10px;
+    background-color: var(--primaryColor);
+    padding:20px;
+}
+.reviewsContainer h2{
+    grid-column:2/12;
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--lightText);
+    text-align: center;
+    padding:5px;
+    border-bottom: 1px solid var(--background);
+}
+/* .reviewShow{
+
+} */
+.reviewLabel{
+    font-size: 1.2em;
+    color: var(--lightText);
+    margin-bottom:0px;
+    padding-left:5px;
+}
+.reviewDisplay{
+    font-size: 1.2em;
+    font-weight: 400;
+    color: var(--darkText);
+    text-align: left;
+    background-color: #F5F9FF;
+    padding:10px;
+    border-radius:10px;
+    border: 1px solid var(--background);
+    margin:0px;
+}
+.line{
+    grid-column:1/13;
+    grid-row:5/6;
+    height:1px;
+    background-color: var(--background);
+}
+
+.showReviewName{
+    grid-column:1/8;
+    grid-row:2/3;
+}
+.reviewNameLbl{
+    grid-column:1/8;
+    grid-row:1/2
+}
+.showReviewBusiness{
+    grid-column:1/6;
+    grid-row:4/5;
+}
+.reviewBusinessLbl{
+    grid-row:3/4;
+    grid-column:1/6;
+}
+.reviewDescriptionLbl{
+    grid-row:6/7;
+    grid-column:1/13;
+}
+.showReviewDescription{
+    grid-row:7/8;
+    grid-column:1/13;
+    margin-bottom:25px;
+    min-height: 100px;
+}
+.reviewRatingLbl{
+    grid-row:1/2;
+    grid-column:11/13;
+}
+.showReviewRating{
+    grid-row:2/3;
+    grid-column:11/13;
+}
+.reviewWorkTypeLbl{
+    grid-row:3/4;
+    grid-column:6/8;
+}
+.showReviewWorkType{
+    grid-row:4/5;
+    grid-column:6/8;
+}
+.reviewDateLbl{
+    grid-row:6/7;
+    grid-column:9/11;
+    text-align: right;
+}
+.showReviewDate{
+    grid-row:6/7;
+    grid-column:11/13;
+}
+.customerSearchArea{
+    margin-top:100px;
+    grid-column:1/13;
+    font-size: 1.5em;
+    font-weight: 700;
+    background-color: var(--primaryColor);
+    border-radius: 15px;
+    padding:20px;
+}
+.writeReviewArea{
+    grid-column:1/13;
+}
+.customerSearchInputs{
+    grid-column:1/13;
+}
+#customerSearchFName{
+    grid-row:2/3;
+    grid-column:3/7;
+}
+#customerSearchLName{
+    grid-row:2/3;
+    grid-column:7/11;
+}
+#customerSearchPhoneNum{
+    grid-row:3/4;
+    grid-column:3/11;
+}
+#customerSearchCity{
+    grid-row:4/5;
+    grid-column:3/11;
+}
+#customerSearchState{
+    grid-row:5/6;
+    grid-column:3/11;
+}
+.customerSearchButton{
+    grid-row:6/7;
+    grid-column:5/9;
+    margin:0;
+    margin-bottom:15px;
+}
+.customerSearchButton2{
+    grid-row:7/8;
+    grid-column:5/9;
+    margin:0;
+    margin-bottom:15px;
+}
+.searchBox{
+    border-radius: 15px;
+    height:50px;
+    padding:4px 25px;
+    border:0;
+}
+.customerSearchArea h1{
+    text-align: center;
+    grid-column: 1/13;
+    grid-row:1/2;
+    font-size: 2.5em;
+    font-weight: 700;
+    color: var(--lightText);
+    margin:55px;
+}
+.customerCardOuter{
+    grid-column:1/13;
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap:16px;
+    border-radius: 10px;
+    background: var(--mainGradient);
+    padding:2px;
+}
+.customerCard{
+    grid-column:1/13;
+    border-radius: 10px;
+    background-color: var(--primaryColor);
+    padding:20px;
+}
+.customerArea{
+    grid-column:1/13;
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap:50px;
+    border-radius: 10px;
+    background-color: var(--primaryColor);
+    padding:25px;
+    margin-top:20px;
+}
+.customerShow{
+    grid-column:1/13;
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap:16px;
+    border-radius: 10px;
+    background-color: var(--mainGradient);
+    padding:25px;
+}
+.customerLabel{
+    font-size: 1.2em;
+    color: var(--lightText);
+    margin-bottom:0px;
+    padding-left:5px;
+}
+.customerDisplay{
+    font-size: 1.2em;
+    font-weight: 400;
+    color: var(--darkText);
+    text-align: left;
+    background-color: #F5F9FF;
+    padding:10px;
+    border-radius:10px;
+    border: 1px solid var(--background);
+    margin:0px;
+}
+.customerNameLbl{
+    grid-column:1/4;
+    grid-row:1/2;
+}
+.showCustomerName{
+    grid-column:1/4;
+    grid-row:2/3;
+}
+.customerPhoneLbl{
+    grid-column:4/6;
+    grid-row:1/2;
+}
+.showCustomerPhone{
+    grid-column:4/6;
+    grid-row:2/3;
+}
+.customerAddressLbl{
+    grid-column:6/9;
+    grid-row:1/2;
+}
+.showCustomerAddress{
+    grid-column:6/9;
+    grid-row:2/3;
+}
+.writeReviewButton{
+    grid-column:10/13;
+    grid-row:1/3;
+    margin:0;
+}
+.customerArea h2{
+    grid-column:2/12;
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--lightText);
+    text-align: center;
+    padding:5px;
+    border-bottom: 1px solid var(--background);
+}
+.writeActualReview{
+    grid-column:1/13;
+    margin-top:100px;
+    background-color: var(--primaryColor);
+    border-radius: 10px;
+    height:100px;
+}
+.writeActualReview h1 {
+    grid-column:3/10;
+    font-size: 2.5em;
+    font-weight: 700;
+    color: var(--lightText);
+    text-align: center;
+    padding:20px;
+}
+.coloredText{
+    color: var(--secondaryColor);
+}
+.writeReviewInputs{
+    grid-column:1/13;
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap:16px;
+    border-radius: 10px;
+    background-color: var(--primaryColor);
+    padding:25px;
+}
+.createReviewLabel{
+    font-size: 1.2em;
+    color: var(--lightText);
+    margin-bottom:0px;
+}
+.createReviewWorkDone{
+    grid-column:2/12;
+    grid-row:1/2;
+}
+#workingTypeCreate{
+    grid-column:2/12;
+    grid-row:2/3;
+}

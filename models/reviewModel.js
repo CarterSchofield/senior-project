@@ -31,8 +31,18 @@ const reviewSchema = new mongoose.Schema({
         max: [5, 'Rating must be between 1 and 5.']
     },
     timestamp: {
-        type: Date,
-        default: Date.now
+        type: String,
+        validate: {
+            validator: function(v) {
+                return /\d{2}\/\d{2}\/\d{4}/.test(v);
+            },
+            message: props => `${props.value} is not a valid date!`
+        }
+    },
+    reviewWorkDone: {
+        type: String,
+        enum: ['Landscaping', 'Concrete', 'Framing', 'Painting', 'Electrical', 'Plumbing', 'Roofing', 'Carpentry', 'Other'], // Add more as needed
+        required: true
     }
 });
 reviewSchema.index({ businessID: 1, userID: 1 }); 

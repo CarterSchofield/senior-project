@@ -35,8 +35,13 @@ const userSchema = new mongoose.Schema({
         default: 'User'
     },
     dateCreatedOn: {
-        type: Date,
-        default: Date.now
+        type: String,
+        validate: {
+            validator: function(v) {
+                return /\d{2}\/\d{2}\/\d{4}/.test(v);
+            },
+            message: props => `${props.value} is not a valid date!`
+        }
     }
 // }, {
 //     toJSON: {

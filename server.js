@@ -43,7 +43,13 @@ const db = require('./db');
 db.connect();
 
 const app = express();
-app.use(helmet());
+app.use(helmet.contentSecurityPolicy({
+    directives: {
+        "script-src": ["'self'", "https://unpkg.com"],
+        "script-src": ["'self'", "'unsafe-eval'", "https://unpkg.com"]
+    }
+}));
+
 app.use(express.static("public"));
 app.use(session({
     name: 'KareShieldSession',
@@ -166,7 +172,6 @@ app.post("/users", async function(request, response) {
         }
     }
 });
-
 
 //* DELETE a user 
 app.delete("/users/:userID", function(request, response) {
@@ -383,7 +388,6 @@ app.get("/customers", function(request, response) {
 });
 
 //* GET/Retrieve a single customer
-
 app.get("/customers/search", async function(request, response) {
     const { firstName, lastName, phoneNumber, email, address, zipCode, city } = request.query;
 
@@ -398,33 +402,34 @@ app.get("/customers/search", async function(request, response) {
     }
 
     //! Build the search query dynamically based on provided parameters
-    let queryConditions = [];
-    if (firstName) {
-        queryConditions.push({ customerFirstName: new RegExp(firstName, 'i') });
-    }
-    if (lastName) {
-        queryConditions.push({ customerLastName: new RegExp(lastName, 'i') });
-    }
-    if (phoneNumber) {
-        queryConditions.push({ customerPhoneNumber: new RegExp(phoneNumber, 'i') });
-    }
-    if (email) {
-        queryConditions.push({ customerEmail: new RegExp(email, 'i') });
-    }
-    if (address) {
-        queryConditions.push({ customerAddress: new RegExp(address, 'i') });
-    }
-    if (zipCode) {
-        queryConditions.push({ customerZipCode: new RegExp(zipCode, 'i') });
-    }
-    if (city) {
-        queryConditions.push({ customerCity: new RegExp(city, 'i') });
-    }
+    let matchConditions = {};
+    if (firstName) matchConditions["customerFirstName"] = new RegExp(firstName, 'i');
+    if (lastName) matchConditions["customerLastName"] = new RegExp(lastName, 'i');
+    if (phoneNumber) matchConditions["customerPhoneNumber"] = new RegExp(phoneNumber, 'i');
+    if (email) matchConditions["customerEmail"] = new RegExp(email, 'i');
+    if (address) matchConditions["customerAddress"] = new RegExp(address, 'i');
+    if (zipCode) matchConditions["customerZipCode"] = new RegExp(zipCode, 'i');
+    if (city) matchConditions["customerCity"] = new RegExp(city, 'i');
 
     try {
-        const query = queryConditions.length > 0 ? { $or: queryConditions } : {};
-        const customers = await customerModel.find(query);
-        
+        const customers = await customerModel.aggregate([
+            {
+                $match: matchConditions
+            },
+            {
+                $project: {
+                    _id: 1,
+                    customerFirstName: 1,
+                    customerLastName: 1,
+                    customerPhoneNumber: 1,
+                    customerEmail: 1,
+                    customerAddress: 1,
+                    customerZipCode: 1,
+                    customerCity: 1
+                }
+            }
+        ]);
+
         if (customers.length) {
             response.json(customers);
         } else {
@@ -432,10 +437,11 @@ app.get("/customers/search", async function(request, response) {
             response.status(404).send("No customers found. Consider creating one.");
         }
     } catch (error) {
-        console.error("> Error searching for customers:", error);
+        console.error("> Error searching for customers with aggregation:", error);
         response.status(500).send("> Failed to search customers");
     }
 });
+
 
 
 
@@ -459,7 +465,9 @@ app.delete("/customers/:customerID", function(request, response) {
 //* POST/CREATE a new review
 app.post("/reviews", async function(request, response) {
     console.log("Request body:", request.body);
-    const { businessID, userID, customerID, reviewRating, reviewDescription } = request.body;
+    const { businessID, userID, customerID, reviewRating, reviewDescription, reviewWorkDone } = request.body;
+    const validWorkTypes = ['landscaping', 'concrete', 'framing', 'painting', 'electrical', 'plumbing', 'roofing', 'carpentry'];
+
 
     if (!businessID) {
         return response.status(400).send("Business ID is required.");
@@ -476,7 +484,9 @@ app.post("/reviews", async function(request, response) {
     else if (reviewDescription.length < 1) {
         return response.status(400).send("Review description is required.");
     }
-
+    else if (!reviewWorkDone || !validWorkTypes.includes(reviewWorkDone)) {
+        return response.status(400).send("Review work done is required. Only one of the following values is allowed: 'landscaping', 'concrete', 'framing', 'painting', 'electrical', 'plumbing', 'roofing', 'carpentry'.");
+    }
     try {
         //! Check if the business, user, and customer exist
         const [businessExists, userExists, customerExists] = await Promise.all([
@@ -513,6 +523,7 @@ app.post("/reviews", async function(request, response) {
             customerID,
             reviewDescription,
             rating: reviewRating,
+            reviewWorkDone,
             timestamp: new Date() // Ensuring the timestamp is set to the current time
         });
         await newReview.save();
@@ -525,12 +536,107 @@ app.post("/reviews", async function(request, response) {
 
 //* GET all reviews
 app.get("/reviews", function(request, response) {
-    reviewModel.find().then((reviews) => {
-        console.log("Reviews from database:", reviews);
+    let query = {};
+
+    // Add filters to the query object only if the parameters are provided
+    if (request.query.customerFirstName) {
+        query['$or'] = [
+            { 'customerID.customerFirstName': new RegExp(request.query.customerName, 'i') },
+            { 'customerID.customerLastName': new RegExp(request.query.customerName, 'i') }
+        ];
+    }
+    if (request.query.customerPhoneNumber) {
+        query['customerID.customerPhoneNumber'] = new RegExp(request.query.customerPhoneNumber, 'i');
+    }
+    if (request.query.customerAddress) {
+        query['customerID.customerAddress'] = new RegExp(request.query.customerAddress, 'i');
+    }
+    if (request.query.workingType) {
+        query['reviewWorkDone'] = request.query.workingType;
+    }
+
+    // Execute the query to find reviews with the given conditions
+    reviewModel.find(query)
+    .populate('customerID', 'customerFirstName customerLastName customerPhoneNumber customerAddress')
+    .populate('businessID', 'businessName businessPhoneNumber businessMailingAddress businessCity businessState')
+    .then(reviews => {
         response.json(reviews);
-    }).catch((error) => {
-        console.error("> Failed to retrieve reviews:", error);
+    })
+    .catch(error => {
+        console.error("Failed to retrieve reviews:", error);
         response.sendStatus(500);
+    });
+});
+
+app.get("/reviews/search", async (req, res) => {
+    const { customerFirstName, customerLastName, customerPhoneNumber, customerCity, reviewWorkDone } = req.query;
+
+    let matchConditions = {};
+    if (customerFirstName) {
+        matchConditions["customer.customerFirstName"] = new RegExp(customerFirstName, 'i');
+    }
+    if (customerLastName) {
+        matchConditions["customer.customerLastName"] = new RegExp(customerLastName, 'i');
+    }
+    if (customerPhoneNumber) {
+        matchConditions["customer.customerPhoneNumber"] = new RegExp(customerPhoneNumber, 'i');
+    }
+    if (customerCity) {
+        matchConditions["customer.customerCity"] = new RegExp(customerCity, 'i');
+    }
+    if (reviewWorkDone) {
+        matchConditions["reviewWorkDone"] = reviewWorkDone;
+    }
+
+    reviewModel.aggregate([
+        {
+            $lookup: {
+                from: "customers",
+                localField: "customerID",
+                foreignField: "_id",
+                as: "customer"
+            }
+        },
+        {
+            $unwind: "$customer"
+        },
+        {
+            $lookup: {
+                from: "businesses", // Make sure 'businesses' is the correct collection name
+                localField: "businessID",
+                foreignField: "_id",
+                as: "business"
+            }
+        },
+        {
+            $unwind: "$business"
+        },
+        {
+            $match: matchConditions
+        },
+        {
+            $project: {
+                _id: 1,
+                reviewDescription: 1,
+                rating: 1,
+                timestamp: 1,
+                reviewWorkDone: 1,
+                "customer.customerFirstName": 1,
+                "customer.customerLastName": 1,
+                "customer.customerPhoneNumber": 1,
+                "customer.customerCity": 1,
+                "business.businessName": 1,
+                "business.businessPhoneNumber": 1,
+                "business.businessMailingAddress": 1,
+                "business.businessCity": 1,
+                "business.businessState": 1
+            }
+        }
+    ])
+    .then(reviews => res.json(reviews))
+    .catch(error => {
+        console.error("Failed to retrieve reviews:", error);
+        res.status(500).send("Error retrieving reviews");
     });
 });
 
@@ -564,8 +670,10 @@ app.delete("/reviews/:reviewID", function(request, response) {
     });
 });
 
-// retrieve session
-// also commonly GET /me
+
+
+
+//* SESSION stuff
 app.get('/session', authorizeRequest, function(request, response) {
     response.status(200).send("Authenticated");
     // Logged in!
@@ -594,9 +702,6 @@ app.post('/session', function(request, response) {
             }
         });
     });
-
-
-
 
 //* Start the server 
 const port = process.env.PORT || 8080;

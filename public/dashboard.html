@@ -35,14 +35,15 @@
                         </button>
                     </div>
                     <div v-else class="nav-items">
-                        <a href="dashboard.html">Read Reviews</a>
+                        <a href="dashboard.html" @click="readReviewsPopup">Read Reviews</a>
+                        <a href="#" @click="writeReviewsPopup">Write Review</a>
                         <!-- <button @click="deleteSession" class="secondaryButton" id="signedOut">Sign Out</button> -->
                         <a href="#" id="toggleUserMenu">
                             <img src="./src/assets/icons/user-circleLight.svg" alt="Toggle User Menu">
                         </a>
                         <div id="userMenu">
-                            <p>{{ user }}PLACEHOLDER</p>
-                            <p>{{business}}PLACEHOLDER</p>
+                            <p>{{user.name }}</p>
+                            <p>{{business.name}}</p>
                             <li class="actionList-sectionDivider">
                             </li>
                             <ul>
@@ -59,7 +60,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#" class="actionListItem" @click="readReviewsPopup">
+                                    <a href="dashboard.html" class="actionListItem" @click="readReviewsPopup">
                                         <img src="./src/assets/icons/eyeLight.svg" alt="Read Review Icon" class="icon">
                                         <span class="linksName">Read Review</span>
                                     </a>
@@ -89,28 +90,114 @@
             </nav>
         </header>
 
-        <!-- <main class="grid12"> -->
-            <div v-if="readReviews">
-                <input v-model="filter.name" placeholder="Filter by name...">
-                <button @click="getFilteredReviews">Filter</button>
-                <div v-for="review in reviews" :key="review.id">
-                    <h3>{{ review.customerName }}</h3>
-                    <p>{{ review.content }}</p>
+        <main class="grid12">
+            <div v-if="readReviews" class="readReviews">
+                <div class="searchHeader grid12">
+                    <h1>Search Reviews</h1>
+                    <div class="searchParams grid12">
+                        <input v-model="fNameSearchReviewFilter" placeholder="Search customers FIRST name..." id="fNameSearchBox" class="searchBox">
+                        <input v-model="lNameSearchReviewFilter" placeholder="Search customers LAST name..." id="lNameSearchBox" class="searchBox">
+                        <input v-model="phoneSearchReviewFilter" placeholder="Search customers phone number..." id="phoneSearchBox" type="number" class="searchBox">
+                        <input v-model="addressSearchReviewFilter" placeholder="Search customers city..." id="addressSearchBox" class="searchBox">
+                        <select v-model="workingTypeReviewFilter" name="workType" id="workingType">
+                            <option value="" disabled selected>Select a work type</option>
+                            <option value="landscaping">Landscaping</option>
+                            <option value="concrete">Concrete</option>
+                            <option value="framing">Framing</option>
+                            <option value="painting">Painting</option>
+                            <option value="Electrical">Electrical</option>
+                            <option value="Plumbing">Plumbing</option>
+                            <option value="Roofing">Roofing</option>
+                            <option value="Carpentry">Carpentry</option>
+                            <option value="HVAC">HVAC</option>
+                            <option value="Masonry">Masonry</option>
+                            <option value="Drywall">Drywall</option>
+                            <option value="Siding">Siding</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <button @click="clearSearchFilters" class="clearReviewSearchButton secondaryButton">Clear Search</button>
+                        <button @click="searchReviews" class="reviewSearchButton primaryButton">Search</button>
+                    </div>
+                </div>
+                <div class="reviewsContainer">
+                    <h2>All Results</h2>
+                    <div v-for="review in reviews" :key="review.id" class="reviewCardOuter">
+                        <div class="reviewCard">
+                            <div class="grid12 reviewShow">
+                                <p class="reviewNameLbl reviewLabel">Customer Name</p>
+                                <p class="showReviewName reviewDisplay">{{ review.customer.customerFirstName + " " + review.customer.customerLastName}}</p>
+                                <p class="reviewBusinessLbl reviewLabel">Reviewing Business</p>
+                                <p class="showReviewBusiness reviewDisplay">{{review.business.businessName }}</p>
+                                <p class="reviewWorkTypeLbl reviewLabel">Work Type</p>
+                                <p class="showReviewWorkType reviewDisplay">{{review.reviewWorkDone }}</p>
+                                <div class="line"></div>
+                                <p class="reviewDescriptionLbl reviewLabel">Review Description</p>
+                                <p class="showReviewDescription reviewDisplay">{{ review.reviewDescription }}</p>
+                                <p class="reviewDateLbl reviewLabel">Date Reviewed:</p>
+                                <p class="showReviewDate reviewLabel">{{ review.timestamp }}</p>
+                                <p class="reviewRatingLbl reviewLabel">Rating</p>
+                                <p class="showReviewRating reviewDisplay">{{ review.rating }}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div v-else-if="writeReview">
-                <input v-model="customerSearch" placeholder="Search customer...">
-                <button @click="searchCustomer">Search</button>
-                <div v-if="customer">
-                    <textarea v-model="newReview.content" placeholder="Write a review..."></textarea>
-                    <button @click="submitReview">Submit Review</button>
+            <div v-else-if="writeReviews" class="writeReviewArea">
+                <div class="customerSearchArea">
+                    <h1>Search For A Customer to Review</h1>
+                    <div class="customerSearchInputs grid12">
+                        <input v-model="customerFirstNameSearch" placeholder="Search customers FIRST Name..." id="customerSearchFName" class="searchBox">
+                        <input v-model="customerLastNameSearch" placeholder="Search customers LAST Name..." id="customerSearchLName" class="searchBox">
+                        <input v-model="customerPhoneSearch" placeholder="Search customers phone number..." id="customerSearchPhoneNum" class="searchBox">
+                        <input v-model="customerCitySearch" placeholder="Search customers city..." id="customerSearchCity" class="searchBox">
+                        <input v-model="customerStateSearch" placeholder="Search customers state..." id="customerSearchState" class="searchBox">
+                        <button @click="customerSearch" class="primaryButton customerSearchButton">Search For A Customer to Review</button>
+                    </div>
                 </div>
-                <div v-else>
-                    <h3>Create New Customer</h3>
-                    <input v-model="newCustomer.name" placeholder="Name">
-                    <input v-model="newCustomer.email" placeholder="Email">
-                    <button @click="createCustomer">Create and Add Review</button>
+                <div class="customerArea">
+                    <h2>Select Customer to Review</h2>
+                    <div v-for="customer in customers" :key="customer._id" class="customerCardOuter">
+                        <div class="customerCard">
+                            <div class="grid12 customerShow">
+                                <p class="customerNameLbl customerLabel">Customer Name</p>
+                                <p class="showCustomerName customerDisplay">{{ customer.customerFirstName + " " + customer.customerLastName }}</p>
+                                <p class="customerPhoneLbl customerLabel">Phone Number</p>
+                                <p class="showCustomerPhone customerDisplay">{{ customer.customerPhoneNumber }}</p>
+                                <p class="customerAddressLbl customerLabel">Address</p>
+                                <p class="showCustomerAddress customerDisplay">{{ customer.customerAddress + ", " + customer.customerZipCode }}</p>
+                                <button @click="writeReview(customer)" class="primaryButton writeReviewButton">Write Review for This Customer</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+            <div v-else-if="writeReviewOnCustomerPopup" class="writeActualReview">
+                <h1>Write Review For <span class="coloredText"> {{ customer.customerFirstName + " " + customer.customerLastName}} </span></h1>
+                <button>hello</button>
+                <!-- <div class="writeReviewInputs">
+                    <p class="createReviewWorkDone createReviewLabel">Work that was done?</p>
+                    <select v-model="workingTypeCreateReview" name="workType" id="workingTypeCreate">
+                        <option value="" disabled selected>Select a work type</option>
+                        <option value="landscaping">Landscaping</option>
+                        <option value="concrete">Concrete</option>
+                        <option value="framing">Framing</option>
+                        <option value="painting">Painting</option>
+                        <option value="Electrical">Electrical</option>
+                        <option value="Plumbing">Plumbing</option>
+                        <option value="Roofing">Roofing</option>
+                        <option value="Carpentry">Carpentry</option>
+                        <option value="HVAC">HVAC</option>
+                        <option value="Masonry">Masonry</option>
+                        <option value="Drywall">Drywall</option>
+                        <option value="Siding">Siding</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <p class="reviewNameLbl createReviewLabel">Describe your experience</p>
+                    <textarea v-model="reviewDescription" placeholder="Describe your experience..." id="reviewDescription" class="reviewInput"></textarea>
+                    <p class="reviewNameLbl createReviewLabel">Customer Rating (1-5)</p>
+                    <input v-model="reviewRating" placeholder="Rating (1-5)" id="reviewRating" type="number" class="reviewInput">
+                    <button @click="submitReview" class="primaryButton submitReviewButton">Submit Review</button>
+                </div> -->
             </div>
         </main>
 
@@ -161,21 +248,6 @@
         </footer>
 
     </div> <!-- ending div for app -->
-    <script>
-        const navBar = document.querySelector("nav"),
-            menuBtns = document.querySelectorAll(".menu-icon"),
-            overlay = document.querySelector(".overlay");
-
-        menuBtns.forEach((menuBtn) => {
-            menuBtn.addEventListener("click", () => {
-            navBar.classList.toggle("open");
-            });
-        });
-
-        overlay.addEventListener("click", () => {
-            navBar.classList.remove("open");
-        });
-    </script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="./src/javascript/app.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>

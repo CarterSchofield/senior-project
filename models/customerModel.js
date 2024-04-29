@@ -39,8 +39,7 @@ const customerSchema = new mongoose.Schema({
         versionKey: false,
         transform: function(doc, ret) {
             delete ret.customerEmail;
-            delete ret.customerAddress;
-            delete ret.customerCity;
+            // delete ret.customerAddress;
     }
 }
 });

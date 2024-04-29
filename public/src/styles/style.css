@@ -65,6 +65,14 @@ body {
     margin: 0 auto;
     padding: 0 ;
 }
+.grid11{
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    gap: 28px;
+    max-width: 1440px; 
+    margin: 0 auto;
+    padding: 0 ;
+}
 /*$ NavBar */
 #navLogo{
     height: 80px;
@@ -508,6 +516,7 @@ a img{
     z-index: 1000;
     padding:16px;
     border-radius: 10px;
+    border: 2px solid var(--secondaryColor);
 }
 #userMenu li{
     list-style: none;
