@@ -42,8 +42,8 @@
                             <img src="./src/assets/icons/user-circleLight.svg" alt="Toggle User Menu">
                         </a>
                         <div id="userMenu">
-                            <p>{{user.name }}</p>
-                            <p>{{business.name}}</p>
+                            <p>{{ signedInUsersName }}</p>
+                            <p>{{ signedInBusinessName }}</p>
                             <li class="actionList-sectionDivider">
                             </li>
                             <ul>
@@ -79,7 +79,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#" class="actionListItem">
+                                    <a href="#" class="actionListItem" @click="logout">
                                         <img src="./src/assets/icons/signoutRed.svg" alt="Logout Icon" class="icon">
                                         <span class="linksName logout">Logout</span>
                                     </a>
@@ -252,5 +252,6 @@
     <script src="./src/javascript/app.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="./src/javascript/main.js"></script>
+    <script src="./src/javascript/dashboard.js"></script>
 </body>
 </html>

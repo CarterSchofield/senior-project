@@ -39,7 +39,7 @@
                         <h3>Already have an account?</h3>
                         <button @click="loginPageNavigate" class="secondaryButton">Sign In</button>
                     </div>
-                    <div id="registerForm">
+                    <form id="registerForm">
                         <h2>Create Account</h2>
                         <label class="label" id="geisterEmail" for="email">EMAIL</label>
                         <input type="email" id="email" name="email" required placeholder="Email" v-model="existingUserEmail">
@@ -52,7 +52,7 @@
                             <span>Continue</span>
                             <img src="./src/assets/icons/arrow-rightLight.svg" alt="Arrow right Icon">
                         </button>
-                    </div>
+                    </form>
                 </div>
 
                 <div v-else-if="type === 'login'" class="loginInfo">
@@ -64,10 +64,10 @@
                     <div id="loginForm">
                         <h2>Sign in</h2>
                         <label class="label" id="loginEmail" for="email">EMAIL</label>
-                        <input type="email" id="email" name="email" required placeholder="Email">
+                        <input type="email" id="email" name="email" required placeholder="Email" v-model="inputtedEmail">
 
                         <label class="label" id="loginPassword" for="password">PASSWORD</label>
-                        <input type="password" id="password" name="password" required placeholder="Password">
+                        <input type="password" id="password" name="plainPassword" required placeholder="Password" v-model="inputtedPassword">
                         <button @click="login" class="primaryButton">Sign In</button>
                         <div class="leftText">
                             <!-- <label class="label checkboxWrap checkboxPrimary" id="loginRemember" for="remember">Remember Me

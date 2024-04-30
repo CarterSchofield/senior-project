@@ -26,10 +26,10 @@ const session = require('express-session');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
 const validator = require("node-email-validation");
-const bcrypt = require('bcrypt');
-// var passport = require('passport');
+const passport = require('./passport/setup');
+const MongoStore = require('connect-mongo');
+const bodyParser = require('body-parser');
 // var LocalStrategy = require('passport-local');
-// var crypto = require('crypto');
 
 //* Getting all the models 
 const userModel = require('./models/userModel');
@@ -57,60 +57,49 @@ app.use(session({
     saveUninitialized: true,
     resave: false,
     cookie: {
-        secure: true, // fixes chrome, breaks postman.
-        sameSite: 'None'
+        secure: false, // Important for HTTP, must be false to transmit over non-HTTPS
+        httpOnly: true,
+        sameSite: 'Lax', // Can be 'Lax' for localhost development
+        // secure: true, // fixes chrome, breaks postman.
+        // sameSite: 'None',
+        maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
     }
-}))
-app.use(express.urlencoded({ extended: false }))
-// app.use(passport.initialize());
+}));
 app.use(cors({
     credentials: true,
-    origin: function (origin, callback) {
-        callback(null, origin); //avoid using the wildcare origin
-    }
-}))
-app.use(express.json());
+    origin: 'http://localhost:8080'
+}));
 
-// function authorizeRequest(request, response, next) {
-//     console.log("Checking session userId:", request.session.userId); // Start with this log
-//     if (request.session && request.session.userId) {
-//         userModel.User.findOne({ _id: request.session.userId }).then(function(user) {
-//             if (user) {
-//                 request.user = user;
-//                 console.log("User authenticated:", user.email); // Confirm user is authenticated
-//                 next();
-//             } else {
-//                 console.log("User not found."); // If user not found
-//                 // response.status(401).send("Not authenticated");
-//                 response.status(401).json({error: "Not authenticated", reason: "Session ID missing or invalid"});
-
-//             }
-//         });
-//     } else {
-//         console.log("No session or userId found."); // If no session
-//         // response.status(401).send("Not authenticated");
-//         response.status(401).json({error: "Not authenticated", reason: "Session ID missing or invalid"});
-
-//     }
-// };
+// Body parser middleware
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 function authorizeRequest(request, response, next) {
-    if (request.session && request.session.userID) {
-        model.User.findOne({ _id: request.session.userID }).then(function (user) {
+    console.log("Checking session userId:", request.session.userId); // Start with this log
+    if (request.session && request.session.userId) {
+        userModel.findOne({ _id: request.session.userId }).then(function(user) {
             if (user) {
                 request.user = user;
+                console.log("User authenticated:", user.email); // Confirm user is authenticated
                 next();
             } else {
-                response.status(401).send("Not authenticated");
+                console.log("User not found."); // If user not found
+                response.status(401).json({error: "Not authenticated", reason: "Session ID missing or invalid"});
+                response.redirect('/login.html');
             }
         });
     } else {
-        response.status(401).send("Not authenticated");
+        console.log("No session or userId found."); // If no session
+        response.status(401).json({error: "Not authenticated", reason: "Session ID missing or invalid"});
+        
+        response.redirect('/login.html');
     }
 }
 
+
 //* GET all users 
 app.get("/users", function(request, response) {
+// app.get("/users", authorizeRequest, function(request, response) {
     userModel.find().then((users) => {
         console.log("Users from database:", users);
         response.json(users);
@@ -121,7 +110,7 @@ app.get("/users", function(request, response) {
 });
 
 //* GET/Retrieve a single user 
-app.get("/users/:userID", function(request, response) {
+app.get("/users/:userID", authorizeRequest, function(request, response) {
     console.log("Request for user with ID:", request.params.userID);
     userModel.findOne({ _id: request.params.userID }).then((user) => {
         if (user) {
@@ -136,7 +125,7 @@ app.get("/users/:userID", function(request, response) {
 });
 
 //* POST/CREATE a new user 
-app.post("/users", async function(request, response) {
+app.post("/users", authorizeRequest, async function(request, response) {
     console.log("Request body:", request.body);
     const { businessID, firstName, lastName, email, plainPassword } = request.body;
 
@@ -174,7 +163,7 @@ app.post("/users", async function(request, response) {
 });
 
 //* DELETE a user 
-app.delete("/users/:userID", function(request, response) {
+app.delete("/users/:userID", authorizeRequest, function(request, response) {
     console.log("Request to delete user with ID:", request.params.userID);
     userModel.deleteOne({ _id: request.params.userID }).then((result) => {
         if (result.deletedCount > 0) {
@@ -189,7 +178,7 @@ app.delete("/users/:userID", function(request, response) {
 });
 
 //* GET all businesses 
-app.get("/businesses", function(request, response) {
+app.get("/businesses", authorizeRequest, function(request, response) {
     businessModel.find().then((businesses) => {
         console.log("Businesses from database:", businesses);
         response.json(businesses);
@@ -200,7 +189,7 @@ app.get("/businesses", function(request, response) {
 });
 
 //* GET/Retrieve a single business 
-app.get("/businesses/:businessID", function(request, response) {
+app.get("/businesses/:businessID", authorizeRequest, function(request, response) {
     console.log("Request for business with ID:", request.params.businessID);
     businessModel.findOne({ _id: request.params.businessID }).then((business) => {
         if (business) {
@@ -215,7 +204,7 @@ app.get("/businesses/:businessID", function(request, response) {
 });
 
 //* POST/CREATE a new business 
-app.post("/businesses", async function(request, response) {
+app.post("/businesses", authorizeRequest, async function(request, response) {
     console.log("Request body:", request.body);
     const { businessName, primaryContactEmail, businessPrivacyAgreement, businessMailingAddress, businessPhoneNumber, businessZipCode, businessState, businessCity, plainPassword } = request.body;
 
@@ -304,7 +293,7 @@ app.post("/businesses", async function(request, response) {
 });
 
 //* DELETE a business 
-app.delete("/businesses/:businessID", async function(request, response) {
+app.delete("/businesses/:businessID", authorizeRequest, async function(request, response) {
     const businessID = request.params.businessID;
     console.log("Request to delete business with ID:", businessID);
 
@@ -335,7 +324,7 @@ app.delete("/businesses/:businessID", async function(request, response) {
 });
 
 //* POST/CREATE a new customer
-app.post("/customers", async function(request, response) {
+app.post("/customers", authorizeRequest, async function(request, response) {
     console.log("Request body:", request.body);
     const { businessID, customerFirstName, customerLastName, customerPhoneNumber, customerAddress, customerZipCode, customerState, customerCity, customerEmail } = request.body;
 
@@ -377,7 +366,7 @@ app.post("/customers", async function(request, response) {
 });
 
 //* GET all customers
-app.get("/customers", function(request, response) {
+app.get("/customers", authorizeRequest, function(request, response) {
     customerModel.find().then((customers) => {
         console.log("Customers from database:", customers);
         response.json(customers);
@@ -388,7 +377,7 @@ app.get("/customers", function(request, response) {
 });
 
 //* GET/Retrieve a single customer
-app.get("/customers/search", async function(request, response) {
+app.get("/customers/search", authorizeRequest, async function(request, response) {
     const { firstName, lastName, phoneNumber, email, address, zipCode, city } = request.query;
 
     //! Define a list of allowed search parameters
@@ -447,7 +436,7 @@ app.get("/customers/search", async function(request, response) {
 
 
 //* DELETE a customer
-app.delete("/customers/:customerID", function(request, response) {
+app.delete("/customers/:customerID", authorizeRequest, function(request, response) {
     console.log("Request to delete customer with ID:", request.params.customerID);
     customerModel.deleteOne({ _id: request.params.customerID }).then((result) => {
         if (result.deletedCount > 0) {
@@ -463,7 +452,7 @@ app.delete("/customers/:customerID", function(request, response) {
 
 
 //* POST/CREATE a new review
-app.post("/reviews", async function(request, response) {
+app.post("/reviews", authorizeRequest, async function(request, response) {
     console.log("Request body:", request.body);
     const { businessID, userID, customerID, reviewRating, reviewDescription, reviewWorkDone } = request.body;
     const validWorkTypes = ['landscaping', 'concrete', 'framing', 'painting', 'electrical', 'plumbing', 'roofing', 'carpentry'];
@@ -535,7 +524,7 @@ app.post("/reviews", async function(request, response) {
 });
 
 //* GET all reviews
-app.get("/reviews", function(request, response) {
+app.get("/reviews", authorizeRequest, function(request, response) {
     let query = {};
 
     // Add filters to the query object only if the parameters are provided
@@ -568,7 +557,7 @@ app.get("/reviews", function(request, response) {
     });
 });
 
-app.get("/reviews/search", async (req, res) => {
+app.get("/reviews/search", authorizeRequest, async (req, res) => {
     const { customerFirstName, customerLastName, customerPhoneNumber, customerCity, reviewWorkDone } = req.query;
 
     let matchConditions = {};
@@ -641,7 +630,7 @@ app.get("/reviews/search", async (req, res) => {
 });
 
 //* GET/Retrieve a single review
-app.get("/reviews/:reviewID", function(request, response) {
+app.get("/reviews/:reviewID", authorizeRequest, function(request, response) {
     console.log("Request for review with ID:", request.params.reviewID);
     reviewModel.findOne({ _id: request.params.reviewID }).then((review) => {
         if (review) {
@@ -656,7 +645,7 @@ app.get("/reviews/:reviewID", function(request, response) {
 });
 
 //* DELETE a review
-app.delete("/reviews/:reviewID", function(request, response) {
+app.delete("/reviews/:reviewID", authorizeRequest, function(request, response) {
     console.log("Request to delete review with ID:", request.params.reviewID);
     reviewModel.deleteOne({ _id: request.params.reviewID }).then((result) => {
         if (result.deletedCount > 0) {
@@ -670,41 +659,141 @@ app.delete("/reviews/:reviewID", function(request, response) {
     });
 });
 
-
-
-
 //* SESSION stuff
-app.get('/session', authorizeRequest, function(request, response) {
-    response.status(200).send("Authenticated");
-    // Logged in!
-    response.json(request.user);
+app.get('/session', function(request, response) {
+    if (request.session && request.session.userId) {
+        userModel.findById(request.session.userId)
+            .populate('businessID')  // This populates the business details referenced by businessID
+            .then(user => {
+                if (!user) {
+                    console.log('No user found for the session');
+                    response.status(204).send(); // No Content
+                return;
+                }
+                // Return both user and business details
+                response.json({
+                    firstName: user.firstName,
+                    businessName: user.businessID.businessName, // Assuming businessName is a field you want
+                    businessDetails: {
+                        email: user.businessID.primaryContactEmail,
+                        address: user.businessID.businessMailingAddress,
+                        phone: user.businessID.businessPhoneNumber
+                    },
+                    status: 'Session active'
+                });
+            })
+            .catch(err => {
+                console.error('Error fetching user:', err);
+                response.status(500).send('Server error');
+            });
+    } else {
+        response.status(204).send();
+    }
 });
 
-app.delete('/session', authorizeRequest, function(request, response) {
-    request.session.userID = null;
-    response.status(200).send("Logged Out");
+app.get('/logout', function(request, response) {
+    request.session.destroy(function(err) {
+        if (err) {
+            console.error("Failed to destroy the session during logout.", err);
+            return response.status(500).send("Could not log out.");
+        }
+        response.clearCookie('connect.sid', { path: '/' }); // Assuming default session cookie name unless customized
+        response.status(200).send("Logged out");
+    });
 });
 
-// authentication: create session
+//* authentication: create session
 app.post('/session', function(request, response) {
-    model.User.findOne({ email: request.body.email }).then(function (user) {
-        if (user) {
+    emailLowerCase = request.body.email.toLowerCase();
+    userModel.findOne({ email: emailLowerCase }).then(function(user) {
+        if (user){
             user.verifyEncryptedPassword(request.body.plainPassword).then(function(match) {
                 if (match) {
-                    request.session.userID = user._id;
+                    request.session.userId = user._id;
                     response.status(201).send("Authenticated");
                 } else {
-                    response.status(401).send("Not authenticated");
+                    response.status(401).send("Password incorrect");
                 }
+            })
+            .catch(function(error) {
+                console.error("Error verifying password:", error);
+                response.status(500).send("Internal server error");
             });
-            } else {
-                response.status(401).send("Not authenticated");
-            }
-        });
+        } else{
+            response.status(401).send("Invalid email or password");
+        }
+    }).catch(function(error) {
+        console.error("Error finding user:", error);
+        response.status(500).send("Internal server error");
     });
+});
+
+//* authentication: register
+app.post('/register', async function(request, response) {
+    const { firstName, lastName, email, plainPassword, businessID } = request.body;
+    
+    // Validate required fields
+    if (!firstName) {
+        return response.status(400).send("First name is required.");
+    }
+    if (!lastName) {
+        return response.status(400).send("Last name is required.");
+    }
+    if (!businessID) {
+        return response.status(400).send("Business ID is required.");
+    }
+    if (!plainPassword) {
+        return response.status(400).send("Password is required.");
+    }
+    if (!email) {
+        return response.status(400).send("Email is required.");
+    }
+    // Validate email
+    if (!validator.is_email_valid(email)) {
+        return response.status(400).send("Invalid email address.");
+    }
+    try {
+        //! Check if the businessID is valid
+        const business = await businessModel.findById(businessID);
+        if (!business) {
+            return response.status(404).send("Business not found.");
+        }
+    
+        //! Check if the email is already used
+        const existingUser = await userModel.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+            return response.status(409).send("Email already exists.");
+        }
+    
+        // Create a new user
+        const newUser = new userModel({
+            firstName,
+            lastName,
+            email: email.toLowerCase(),
+            businessID
+        });
+        //! Use setEncryptedPassword to hash and set the password
+        await newUser.setEncryptedPassword(plainPassword);
+    
+        //! Save the new user
+        await newUser.save();
+        request.logIn(newUser, function(err) {
+            if (err) {
+                return response.status(500).json({ message: "Error logging in new user." });
+            }
+            response.status(201).json({ message: "User registered and logged in.", user: newUser });
+        });
+    } catch (error) {
+        console.error("> Error registering user:", error);
+        response.status(500).send("Failed to register user.");
+    }
+});
+    
+    
 
 //* Start the server 
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
     console.log('> Server is running on port ' + port);
+    
 });

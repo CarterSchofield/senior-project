@@ -19,19 +19,10 @@ Vue.createApp({
             readReviews: true,
             writeReviews: false,
             user: {
-                name: 'John Doe',
-                email: 'carter.schofield',
-                password: 'password'
+                name: '',
+                email: ''
             },
-            business: {
-                name: 'KareShield',
-                address: '123 Main St',
-                city: 'Anytown',
-                state: 'NY',
-                zip: '12345',
-                phone: '123-456-7890',
-                email: '',
-            },
+
             workTypes: ['landscaping', 'concrete', 'framing', 'painting', 'electrical', 'plumbing', 'roofing', 'carpentry'],
             fNameSearchReviewFilter: '',
             lNameSearchReviewFilter: '',
@@ -52,7 +43,10 @@ Vue.createApp({
             citySearchFilter: '',
             customers: [],
             writeReviewOnCustomerPopup: false,
-
+            inputtedEmail: '',
+            inputtedPassword: '',
+            signedInUsersName: '',
+            signedInBusinessName: '',
         };
     },
     methods: {
@@ -65,12 +59,12 @@ Vue.createApp({
             window.location.href = "login.html?type=login";
         },
         // You can define other methods here as needed
-        login() {
-            console.log("Logging in");
-            this.userNotSignedIn = false;
-            localStorage.setItem('userNotSignedIn', 'false'); // Store login state in local storage
-            window.location.href = "index.html";
-        },
+        // login() {
+        //     console.log("Logging in");
+        //     this.userNotSignedIn = false;
+        //     localStorage.setItem('userNotSignedIn', 'false'); // Store login state in local storage
+        //     window.location.href = "index.html";
+        // },
         logout() {
             this.userNotSignedIn = true;
             localStorage.setItem('userNotSignedIn', 'true'); // Update login state in local storage
@@ -222,11 +216,106 @@ Vue.createApp({
             console.log("Submitting review for customer:", this.customer);
             // this.createReview();
             // this.writeReviewOnCustomerPopup = false;
-        }
+        },
+        login() {
+            var data = "email=" + encodeURIComponent(this.inputtedEmail);
+            data += "&plainPassword=" + encodeURIComponent(this.inputtedPassword);
+            fetch('http://localhost:8080/session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: data,
+                credentials: 'include',
+            }).then(response => {
+                if (response.ok) {
+                    console.log("Login successful");
+                    localStorage.setItem('userNotSignedIn', 'false');
+                    this.userNotSignedIn = false;
+                    this.inputtedEmail = '';
+                    this.inputtedPassword = '';
+                    window.location.replace("http://localhost:8080/dashboard.html");
+                    this.loadSession();
+                } else {
+                    //TODO - handle login failure like midterm
+                    throw new Error('Login failed!');
+                }
+            })
+            .catch(error => {
+                console.error("Login error:", error);
+                alert("Login failed: " + error.message);
+            });
+        },
+
+        // loadSession() {
+        //     fetch('http://localhost:8080/session')
+        //         .then((response) => {
+        //             if(response.status === 200) {
+        //                 response.json().then(data => {
+        //                     console.log("Session data:", data);
+        //                     this.userNotSignedIn = false;
+        //                     this.signedInUsersName = data.firstName; // Assuming the response includes a "firstName" field
+        //                     this.signedInBusinessName = data.businessName;
+        //                     localStorage.setItem('signedInUsersName', data.firstName);
+        //                     localStorage.setItem('signedInBusinessName', data.businessName);
+        //                     console.log("Session restored and username set:", data.firstName);
+        //                 });
+        //             } else {
+        //                 // Redirect to login.html if no active session
+        //                 console.log("No active session or user not signed in");
+        //                 // window.location.href = '/login.html'; // Ensure the path is correct as per your directory structure
+        //             }
+        //         })
+        //         .catch(error => {
+        //             console.error("Error loading session:", error);
+        //         });
+        // },
+        loadSession() {
+            fetch('http://localhost:8080/session')
+                .then(response => {
+                    if (response.status === 200 && response.headers.get("Content-Length") !== "0") {
+                        response.json().then(data => {
+                            this.userNotSignedIn = false;
+                            this.signedInUsersName = data.firstName; // Assuming the response includes a "firstName" field
+                            this.signedInBusinessName = data.businessName;
+                            localStorage.setItem('signedInUsersName', data.firstName);
+                            localStorage.setItem('signedInBusinessName', data.businessName);
+                        }).catch(jsonError => {
+                            console.error("Error parsing JSON:", jsonError);
+                        });
+                    } else {
+                        console.log("No active session or user not signed in");
+                        // window.location.href = '/login.html'; // Uncomment to redirect when appropriate
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading session:", error);
+                });
+        },
+
+        logout() {
+            fetch('http://localhost:8080/logout', {
+                method: 'GET'
+            }).then(response => {
+                if (response.ok) {
+                    this.userNotSignedIn = true;
+                    localStorage.setItem('userNotSignedIn', 'true');
+                    console.log("Logout successful");
+                    window.location.replace("http://localhost:8080/login.html?type=login");
+                } else {
+                    console.error("Logout failed");
+                }
+            }).catch(error => {
+                console.error("Error during logout:", error);
+            });
+        },
+        
+
+
+
     },
-
-
     mounted() {
+        this.loadSession();
         // When the Vue app is mounted, check the URL parameter to determine the type
         const urlParams = new URLSearchParams(window.location.search);
         const type = urlParams.get('type');
@@ -242,7 +331,7 @@ Vue.createApp({
     },
 
     created() {
-        console.log("App initialized");
+        // console.log("App initialized");
     },
 }).mount("#app");
 

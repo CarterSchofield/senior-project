@@ -3,7 +3,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const { request } = require('express');
-const crypto = require('crypto');
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
     businessID: {
@@ -21,8 +21,15 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: [true, 'Email is required.'],
-        unique: true
+        unique: true,
+        required: [true, 'Email is required!'],
+        trim: true,
+        validate: {
+            validator(email) {
+                return validator.isEmail(email);
+            },
+            message: '{VALUE} is not a valid email!',
+        },
     },
     encryptedPassword: {
         type: String,
@@ -53,6 +60,13 @@ const userSchema = new mongoose.Schema({
 // }
 });
 
+userSchema.pre('save', function(next) {
+    if (this.email) {
+        this.email = this.email.toLowerCase();
+    }
+    next();
+});
+
 userSchema.methods.setEncryptedPassword = function(plainPassword) {
     var promise = new Promise((resolve, reject) => {
         bcrypt.hash(plainPassword, 12).then(hash => {
@@ -74,17 +88,6 @@ userSchema.methods.verifyEncryptedPassword = function(plainPassword) {
     });
     return promise
 }
-
-// Method to verify password
-userSchema.methods.verifyPassword = function(password, callback) {
-    crypto.pbkdf2(password, 12, 310000, 32, 'sha256', (err, hashedPassword) => {
-        if (err) return callback(err);
-        if (!crypto.timingSafeEqual(Buffer.from(this.hashedPassword, 'hex'), hashedPassword)) {
-        return callback(null, false, { message: 'Incorrect email or password.' });
-        }
-        return callback(null, this);
-    });
-};
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;

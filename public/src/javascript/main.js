@@ -10,9 +10,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 userMenu.style.display = 'block';
             }
         });
-    } else {
-        console.log('Element with ID toggleUserMenu not found');
     }
+    // } else {
+    //     console.log('Element with ID toggleUserMenu not found');
+    // }
 });
 
 
@@ -23,14 +24,15 @@ document.addEventListener("DOMContentLoaded", function() {
     const type = queryParams.get('type'); // Get the value of the 'type' parameter
 
     // Now you can use the 'type' variable safely within this block
-    console.log('Type from URL:', type);
+    // console.log('Type from URL:', type);
 
     // You might want to do different things based on the type
     if (type === 'login') {
         // Execute login related code
-        console.log('Prepare login form');
-    } else {
-        // Handle other cases or default behavior
-        console.log('Handle other types or default case');
-    }
+        // console.log('Prepare login form');
+    } 
+    // else {
+    //     // Handle other cases or default behavior
+    //     console.log('Handle other types or default case');
+    // }
 });
