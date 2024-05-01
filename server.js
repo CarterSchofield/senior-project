@@ -29,6 +29,7 @@ const validator = require("node-email-validation");
 const passport = require('./passport/setup');
 const MongoStore = require('connect-mongo');
 const bodyParser = require('body-parser');
+
 // var LocalStrategy = require('passport-local');
 
 //* Getting all the models 
@@ -39,7 +40,7 @@ const reviewModel = require('./models/reviewModel');
 const likeModel = require('./models/likeModel');
 
 //* Set up mongoose/mongoDB connection 
-const db = require('./db');
+const db = require('./public/src/javascript/db');
 db.connect();
 
 const app = express();
@@ -74,6 +75,7 @@ app.use(cors({
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+//* Set up passport?
 function authorizeRequest(request, response, next) {
     console.log("Checking session userId:", request.session.userId); // Start with this log
     if (request.session && request.session.userId) {
@@ -124,43 +126,43 @@ app.get("/users/:userID", authorizeRequest, function(request, response) {
     });
 });
 
-//* POST/CREATE a new user 
-app.post("/users", authorizeRequest, async function(request, response) {
-    console.log("Request body:", request.body);
-    const { businessID, firstName, lastName, email, plainPassword } = request.body;
+// //* POST/CREATE a new user 
+// app.post("/users", authorizeRequest, async function(request, response) {
+//     console.log("Request body:", request.body);
+//     const { businessID, firstName, lastName, email, plainPassword } = request.body;
 
-    if (!validator.is_email_valid(email)) {
-        response.status(422).send("Invalid email address.");
-        return;
-    }
-    else if (!businessID) {
-        return response.status(400).send("Business ID is required.");
-    }
-    try {
-        //! Check if the business exists
-        const businessExists = await businessModel.findById(businessID);
-        if (!businessExists) {
-            return response.status(404).send("> Business not found.");
-        }
-        const newUser = new userModel({
-            businessID,
-            firstName,
-            lastName,
-            email
-        });
-        const hashedPassword = await bcrypt.hash(plainPassword, 10);
-        newUser.encryptedPassword = hashedPassword;
-        await newUser.save();
-        response.status(201).send("Created. New user added.");
-    } catch (error) {
-        console.error("> Error creating user:", error);
-        if (error.code === 11000) {
-            response.status(409).send("Username or email already exists.");
-        } else {
-            response.status(500).send("> Failed to create new user");
-        }
-    }
-});
+//     if (!validator.is_email_valid(email)) {
+//         response.status(422).send("Invalid email address.");
+//         return;
+//     }
+//     else if (!businessID) {
+//         return response.status(400).send("Business ID is required.");
+//     }
+//     try {
+//         //! Check if the business exists
+//         const businessExists = await businessModel.findById(businessID);
+//         if (!businessExists) {
+//             return response.status(404).send("> Business not found.");
+//         }
+//         const newUser = new userModel({
+//             businessID,
+//             firstName,
+//             lastName,
+//             email
+//         });
+//         const hashedPassword = await bcrypt.hash(plainPassword, 10);
+//         newUser.encryptedPassword = hashedPassword;
+//         await newUser.save();
+//         response.status(201).send("Created. New user added.");
+//     } catch (error) {
+//         console.error("> Error creating user:", error);
+//         if (error.code === 11000) {
+//             response.status(409).send("Username or email already exists.");
+//         } else {
+//             response.status(500).send("> Failed to create new user");
+//         }
+//     }
+// });
 
 //* DELETE a user 
 app.delete("/users/:userID", authorizeRequest, function(request, response) {
@@ -204,52 +206,132 @@ app.get("/businesses/:businessID", authorizeRequest, function(request, response)
 });
 
 //* POST/CREATE a new business 
-app.post("/businesses", authorizeRequest, async function(request, response) {
-    console.log("Request body:", request.body);
-    const { businessName, primaryContactEmail, businessPrivacyAgreement, businessMailingAddress, businessPhoneNumber, businessZipCode, businessState, businessCity, plainPassword } = request.body;
+// app.post("/businesses", authorizeRequest, async function(request, response) {
+//     console.log("Request body:", request.body);
+//     const { businessName, primaryContactEmail, businessPrivacyAgreement, businessMailingAddress, businessPhoneNumber, businessZipCode, businessState, businessCity, plainPassword } = request.body;
+
+//     if (!validator.is_email_valid(primaryContactEmail)) {
+//         response.status(422).send("Invalid email address.");
+//         return;
+//     }
+//     else if (!businessPrivacyAgreement) {
+//         response.status(422).send("Business privacy agreement is required.");
+//         return;
+//     }
+//     else if (businessPhoneNumber.length != 10) {
+//         response.status(422).send("Business phone number must be 10 digits.");
+//         return;
+//     }
+//     else if (businessZipCode.length != 5) {
+//         response.status(422).send("Business zip code must be 5 digits.");
+//         return;
+//     }
+//     else if (businessName.length < 1) {
+//         response.status(422).send("Business name is required.");
+//         return;
+//     }
+//     else if (businessMailingAddress.length < 1) {
+//         response.status(422).send("Business mailing address is required.");
+//         return;
+//     }
+//     else if (businessCity.length < 1) {
+//         response.status(422).send("Business city is required.");
+//         return;
+//     }
+//     else if (businessState.length < 1) {
+//         response.status(422).send("Business state is required.");
+//         return;
+//     }
+//     else if (plainPassword.length < 1) {
+//         response.status(422).send("Password is required.");
+//         return;
+//     }
+
+//     const session = await mongoose.startSession();
+//     try {
+//         session.startTransaction();
+
+//         //! Check if the email is already in use by any Business or User
+//         const emailExists = await Promise.all([
+//             businessModel.findOne({ primaryContactEmail }).session(session),
+//             userModel.findOne({ email: primaryContactEmail }).session(session)
+//         ]);
+
+//         if (emailExists[0] || emailExists[1]) {
+//             await session.abortTransaction();
+//             response.status(409).send("Email already in use.");
+//             return;
+//         }
+
+//         const hashedPassword = await bcrypt.hash(plainPassword, 10);
+//         //! Create the business
+//         const newBusiness = new businessModel({
+//             businessName, primaryContactEmail, businessPrivacyAgreement, businessMailingAddress,
+//             businessPhoneNumber, businessZipCode, businessState, businessCity, encryptedPassword: hashedPassword
+//         });
+
+//         const savedBusiness = await newBusiness.save({ session });
+//         //! Create the Admin user
+//         const newUser = new userModel({
+//             businessID: savedBusiness._id,
+//             firstName: 'Primary', // Should be supplied or inferred
+//             lastName: 'Contact',  // Should be supplied or inferred
+//             email: primaryContactEmail,
+//             encryptedPassword: hashedPassword,
+//             role: 'Admin'
+//         });
+
+//         await newUser.save({ session });
+
+//         await session.commitTransaction();
+//         response.status(201).send({ message: "Created. New business and primary contact user added.", business: savedBusiness, user: newUser });
+//     } catch (error) {
+//         await session.abortTransaction();
+//         console.error("> Error creating business or user:", error);
+//         response.status(500).send("> Failed to create business or user");
+//     } finally {
+//         session.endSession();
+//     }
+// });
+
+app.post("/businesses", async function(request, response) {
+    const {
+        businessName,
+        primaryContactEmail,
+        businessPrivacyAgreement,
+        businessMailingAddress,
+        businessPhoneNumber,
+        businessZipCode,
+        businessState,
+        businessCity,
+        plainPassword,
+        adminUsersFirstName,
+        adminUsersLastName,
+    } = request.body;
+
+    // Validate all input fields first
+    if (!businessName || !primaryContactEmail || !businessPrivacyAgreement || !businessMailingAddress ||
+        !businessPhoneNumber || !businessZipCode || !businessState || !businessCity || !plainPassword || 
+        !adminUsersFirstName || !adminUsersLastName) {
+        return response.status(422).send("All fields are required.");
+    }
 
     if (!validator.is_email_valid(primaryContactEmail)) {
-        response.status(422).send("Invalid email address.");
-        return;
+        return response.status(422).send("Invalid email address.");
     }
-    else if (!businessPrivacyAgreement) {
-        response.status(422).send("Business privacy agreement is required.");
-        return;
+
+    if (businessPhoneNumber.length !== 10) {
+        return response.status(422).send("Business phone number must be 10 digits.");
     }
-    else if (businessPhoneNumber.length != 10) {
-        response.status(422).send("Business phone number must be 10 digits.");
-        return;
-    }
-    else if (businessZipCode.length != 5) {
-        response.status(422).send("Business zip code must be 5 digits.");
-        return;
-    }
-    else if (businessName.length < 1) {
-        response.status(422).send("Business name is required.");
-        return;
-    }
-    else if (businessMailingAddress.length < 1) {
-        response.status(422).send("Business mailing address is required.");
-        return;
-    }
-    else if (businessCity.length < 1) {
-        response.status(422).send("Business city is required.");
-        return;
-    }
-    else if (businessState.length < 1) {
-        response.status(422).send("Business state is required.");
-        return;
-    }
-    else if (plainPassword.length < 1) {
-        response.status(422).send("Password is required.");
-        return;
+
+    if (businessZipCode.length !== 5) {
+        return response.status(422).send("Business zip code must be 5 digits.");
     }
 
     const session = await mongoose.startSession();
     try {
         session.startTransaction();
-
-        //! Check if the email is already in use by any Business or User
+        // Check if the email is already in use by any Business or User
         const emailExists = await Promise.all([
             businessModel.findOne({ primaryContactEmail }).session(session),
             userModel.findOne({ email: primaryContactEmail }).session(session)
@@ -261,24 +343,25 @@ app.post("/businesses", authorizeRequest, async function(request, response) {
             return;
         }
 
-        const hashedPassword = await bcrypt.hash(plainPassword, 10);
-        //! Create the business
+        // Create the business
         const newBusiness = new businessModel({
             businessName, primaryContactEmail, businessPrivacyAgreement, businessMailingAddress,
-            businessPhoneNumber, businessZipCode, businessState, businessCity, encryptedPassword: hashedPassword
+            businessPhoneNumber, businessZipCode, businessState, businessCity
         });
 
         const savedBusiness = await newBusiness.save({ session });
-        //! Create the Admin user
+        // Create the Admin user
+
         const newUser = new userModel({
             businessID: savedBusiness._id,
-            firstName: 'Primary', // Should be supplied or inferred
-            lastName: 'Contact',  // Should be supplied or inferred
+            firstName: adminUsersFirstName, // Assuming default names; these should be provided or defaulted properly
+            lastName: adminUsersLastName,
             email: primaryContactEmail,
-            encryptedPassword: hashedPassword,
             role: 'Admin'
         });
 
+        await newUser.setEncryptedPassword(plainPassword);
+        
         await newUser.save({ session });
 
         await session.commitTransaction();
@@ -286,11 +369,12 @@ app.post("/businesses", authorizeRequest, async function(request, response) {
     } catch (error) {
         await session.abortTransaction();
         console.error("> Error creating business or user:", error);
-        response.status(500).send("> Failed to create business or user");
+        response.status(500).send("> Failed to create business or user: " + error.message);
     } finally {
         session.endSession();
     }
 });
+
 
 //* DELETE a business 
 app.delete("/businesses/:businessID", authorizeRequest, async function(request, response) {
@@ -431,10 +515,6 @@ app.get("/customers/search", authorizeRequest, async function(request, response)
     }
 });
 
-
-
-
-
 //* DELETE a customer
 app.delete("/customers/:customerID", authorizeRequest, function(request, response) {
     console.log("Request to delete customer with ID:", request.params.customerID);
@@ -450,14 +530,11 @@ app.delete("/customers/:customerID", authorizeRequest, function(request, respons
     });
 });
 
-
 //* POST/CREATE a new review
 app.post("/reviews", authorizeRequest, async function(request, response) {
     console.log("Request body:", request.body);
     const { businessID, userID, customerID, reviewRating, reviewDescription, reviewWorkDone } = request.body;
     const validWorkTypes = ['landscaping', 'concrete', 'framing', 'painting', 'electrical', 'plumbing', 'roofing', 'carpentry'];
-
-
     if (!businessID) {
         return response.status(400).send("Business ID is required.");
     }
@@ -557,6 +634,7 @@ app.get("/reviews", authorizeRequest, function(request, response) {
     });
 });
 
+//* GET all reviews with search parameters
 app.get("/reviews/search", authorizeRequest, async (req, res) => {
     const { customerFirstName, customerLastName, customerPhoneNumber, customerCity, reviewWorkDone } = req.query;
 
@@ -691,6 +769,7 @@ app.get('/session', function(request, response) {
     }
 });
 
+//* authentication: logout
 app.get('/logout', function(request, response) {
     request.session.destroy(function(err) {
         if (err) {
@@ -702,7 +781,7 @@ app.get('/logout', function(request, response) {
     });
 });
 
-//* authentication: create session
+//* authentication: create session/login
 app.post('/session', function(request, response) {
     emailLowerCase = request.body.email.toLowerCase();
     userModel.findOne({ email: emailLowerCase }).then(function(user) {

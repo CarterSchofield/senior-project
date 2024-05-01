@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Last name is required.']
     },
+    phoneNumber: {
+        type: String,
+        required: false
+    },
     email: {
         type: String,
         unique: true,

@@ -39,21 +39,94 @@
                         <h3>Already have an account?</h3>
                         <button @click="loginPageNavigate" class="secondaryButton">Sign In</button>
                     </div>
-                    <form id="registerForm">
-                        <h2>Create Account</h2>
-                        <label class="label" id="geisterEmail" for="email">EMAIL</label>
-                        <input type="email" id="email" name="email" required placeholder="Email" v-model="existingUserEmail">
 
-                        <label class="label" id="registerPassword" for="password">PASSWORD</label>
-                        <input type="password" id="password" name="password" required placeholder="Password" v-model="existingUserPassword">
-                        <label class="label" id="registerConfirmPassword" for="confirmPassword">CONFIRM PASSWORD</label>
-                        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm Password">
-                        <button @click="register" class="primaryButton">
+                    <div v-if="registerPage1" id="registerForm">
+                        <h2>Create Account</h2>
+                        <label v-if="hasEmailReg" class="label" id="geisterEmail" for="email">EMAIL</label>
+                        <label v-else class="label badLabel" for="email">{{ errorMessages.newUserEmail }}</label>
+                        <input type="email" id="email" name="email" required placeholder="Email" v-model="newUserEmail" :class="{'shake': !hasEmailReg}" @input="hasEmailReg = true" :key="animationKey">
+
+                        <label v-if="hasPasswordReg" class="label" id="registerPassword" for="password">PASSWORD</label>
+                        <label v-else class="label badLabel" for="password">{{ errorMessages.newUserPassword }}</label>
+                        <input type="password" id="password" name="password" required placeholder="Password" v-model="newUserPassword" :class="{'shake': !hasPasswordReg}" @input="hasPasswordReg = true" :key="animationKey">
+
+                        <label v-if="hasPasswordConfirmReg" class="label" id="registerConfirmPassword" for="confirmPassword">CONFIRM PASSWORD</label>
+                        <label v-else class="label badLabel" for="confirmPassword">{{ errorMessages.newUserPasswordConfirm }}</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm Password" v-model="newUserConfirmPassword" :class="{'shake': !hasPasswordConfirmReg}" @input="hasPasswordConfirmReg = true" :key="animationKey">
+
+                        <button @click="registerNext" class="primaryButton fullButton">
                             <span>Continue</span>
                             <img src="./src/assets/icons/arrow-rightLight.svg" alt="Arrow right Icon">
                         </button>
-                    </form>
+                    </div>
+
+                    <div v-else-if="registerPage2" id="registerForm">
+                        <h2>Personal Information</h2>
+                        <label v-if="hasFirstName" class="label" id="registerFirstName" for="firstName">FIRST NAME</label>
+                        <label v-else class="label badLabel" for="firstName">{{ errorMessages.newUserFirstName }}</label>
+                        <input type="text" id="firstName" name="firstName" required placeholder="First Name" v-model="newUserFirstName" :class="{'shake': !hasFirstName}" @input="hasFirstName = true" :key="animationKey">
+
+                        <label v-if="hasLastName" class="label" id="registerLastName" for="lastName">LAST NAME</label>
+                        <label v-else class="label badLabel" for="lastName">{{ errorMessages.newUserLastName }}</label>
+                        <input type="text" id="lastName" name="lastName" required placeholder="Last Name" v-model="newUserLastName" :class="{'shake': !hasLastName}" @input="hasLastName = true" :key="animationKey">
+
+                        <label v-if="hasPhone" class="label" id="registerPhone" for="phone">PHONE NUMBER</label>
+                        <label v-else class="label badLabel" for="phone">{{ errorMessages.newUserPhone }}</label>
+                        <input type="tel" id="phone" name="phone" required placeholder="Phone Number: 123-456-7890 OR 1234567890" v-model="newUserPhone" :class="{'shake': !hasPhone}" @input="hasPhone = true" :key="animationKey">
+
+                        <button @click="registerBack1" class="primaryButton backButton">
+                            <img src="./src/assets/icons/arrow-leftLight.svg" alt="Arrow left Icon">
+                            <span>Back</span>
+                        </button>
+
+                        <button @click="registerNext2" class="primaryButton nextButton">
+                            <span>Next</span>
+                            <img src="./src/assets/icons/arrow-rightLight.svg" alt="Arrow right Icon">
+                        </button>
+                    </div>
+
+                    <div v-else-if="registerPage3" id="registerForm">
+                        <h2>Business Information</h2>
+                        <label v-if="hasBusinessName" class="label" id="registerBusinessName" for="businessName">BUSINESS NAME</label>
+                        <label v-else class="label badLabel" for="businessName">{{ errorMessages.newBusinessName }}</label>
+                        <input type="text" id="businessName" name="businessName" required placeholder="Business Name" v-model="newBusinessName" :class="{'shake': !hasBusinessName}" @input="hasBusinessName = true" :key="animationKey">
+
+                        <!-- Business phone number -->
+                        <label v-if="hasBusinessPhone" class="label" id="registerBusinessPhone" for="businessPhone">BUSINESS PHONE NUMBER</label>
+                        <label v-else class="label badLabel" for="businessPhone">{{ errorMessages.newBusinessBusinessPhone }}</label>
+                        <input type="tel" id="businessPhone" name="businessPhone" required placeholder="Business Phone Number: 123-456-7890 OR 1234567890" v-model="newBusinessPhone" :class="{'shake': !hasBusinessPhone}" @input="hasBusinessPhone = true" :key="animationKey">
+
+                        <label v-if="hasAddress" class="label" id="registerStreet" for="street">MAILING ADDRESS</label>
+                        <label v-else class="label badLabel" for="street">{{ errorMessages.newBusinessAddress }}</label>
+                        <input type="text" id="street" name="street" required placeholder="Street" v-model="newBusinessAddress" :class="{'shake': !hasAddress}" @input="hasAddress = true" :key="animationKey">
+
+                        <label v-if="hasCity" class="label" id="registerCity" for="city">CITY</label>
+                        <label v-else class="label badLabel" for="city">{{ errorMessages.newBusinessCity }}</label>
+                        <input type="text" id="city" name="city" required placeholder="City" v-model="newBusinessCity" :class="{'shake': !hasCity}" @input="hasCity = true" :key="animationKey">
+
+                        <label v-if="hasState" class="label" id="registerState" for="state">STATE</label>
+                        <label v-else class="label badLabel" for="state">{{ errorMessages.newBusinessState }}</label>
+                        <input type="text" id="state" name="state" required placeholder="State" v-model="newBusinessState" :class="{'shake': !hasState}" @input="hasState = true" :key="animationKey">
+
+                        <label v-if="hasZip" class="label" id="registerZip" for="zip">ZIP CODE</label>
+                        <label v-else class="label badLabel" for="zip">{{ errorMessages.newUBusinessZip }}</label>
+                        <input type="text" id="zip" name="zip" required placeholder="Zip Code" v-model="newBusinessZip" :class="{'shake': !hasZip}" @input="hasZip = true" :key="animationKey">
+
+                        <button @click="registerBack2" class="primaryButton backButton">
+                            <img src="./src/assets/icons/arrow-leftLight.svg" alt="Arrow left Icon">
+                            <span>Back</span>
+                        </button>
+
+                        <button @click="completeRegistration" class="primaryButton nextButton">
+                            <span>Register</span>
+                            <img src="./src/assets/icons/arrow-rightLight.svg" alt="Arrow right Icon">
+                        </button>
+                    </div>
                 </div>
+
+
+
+
 
                 <div v-else-if="type === 'login'" class="loginInfo">
                     <div id="loginWelcomeText">    
@@ -63,11 +136,17 @@
                     </div>
                     <div id="loginForm">
                         <h2>Sign in</h2>
-                        <label class="label" id="loginEmail" for="email">EMAIL</label>
-                        <input type="email" id="email" name="email" required placeholder="Email" v-model="inputtedEmail">
+                        <label v-if="hasEmail" class="label" id="loginEmail" for="email">EMAIL</label>
+                        <label v-else class="label badLabel" for="email">{{ errorMessages.inputtedEmail }}</label>
+                        <input type="email" id="loginEmail" name="email" required placeholder="Email" v-model="inputtedEmail" :class="{'shake': !hasEmail}" @input="hasEmail = true" :key="animationKey">
 
-                        <label class="label" id="loginPassword" for="password">PASSWORD</label>
-                        <input type="password" id="password" name="plainPassword" required placeholder="Password" v-model="inputtedPassword">
+                        <label v-if="hasPassword" class="label" id="loginPassword" for="password">PASSWORD</label>
+                        <label v-else class="label badLabel" for="password">{{ errorMessages.inputtedPassword }}</label>
+                        <input type="password" id="loginPassword" name="plainPassword" required placeholder="Password" v-model="inputtedPassword" :class="{'shake': !hasPassword || failedLogin}" :key="animationKey" @input="hasPassword = true">
+
+                        <span class="failedLogin" v-if="failedLogin">
+                            Email or Password is incorrect.
+                        </span>
                         <button @click="login" class="primaryButton">Sign In</button>
                         <div class="leftText">
                             <!-- <label class="label checkboxWrap checkboxPrimary" id="loginRemember" for="remember">Remember Me
