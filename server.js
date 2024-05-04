@@ -2,22 +2,34 @@
 //* Project: KareShield 
 //* Author: Carter Schofield 
 //* Date Created: 02-23-2024 
-//* Date Last Modified: 04-19-2024 
+//* Date Last Modified: 05-01-2024 
 //* Description: This file is the main server file for the KareShield project. This file is responsible for setting up the server, connecting to the database, and setting up the routes for the API.
 
 //* 
 //! 
 //?
+// question
 // TODO: 
 // setting
-// note
-// added
+// NOTE:
+// info
+// success
+// highlight
+// DONE
+// error
+// IMPORTANT: 
+// added 
 // fixme: This needs to be fixed asap 
-// refactor
-// reference
-// fixed
-// -
-// removed
+// refactor 
+// reference 
+// fixed 
+// - 
+// removed 
+// reference 
+// edited: 
+// WARNING: This needs to be fixed asap.
+
+
 
 //* Importing all the required modules 
 const cors = require('cors') 
@@ -206,94 +218,6 @@ app.get("/businesses/:businessID", authorizeRequest, function(request, response)
 });
 
 //* POST/CREATE a new business 
-// app.post("/businesses", authorizeRequest, async function(request, response) {
-//     console.log("Request body:", request.body);
-//     const { businessName, primaryContactEmail, businessPrivacyAgreement, businessMailingAddress, businessPhoneNumber, businessZipCode, businessState, businessCity, plainPassword } = request.body;
-
-//     if (!validator.is_email_valid(primaryContactEmail)) {
-//         response.status(422).send("Invalid email address.");
-//         return;
-//     }
-//     else if (!businessPrivacyAgreement) {
-//         response.status(422).send("Business privacy agreement is required.");
-//         return;
-//     }
-//     else if (businessPhoneNumber.length != 10) {
-//         response.status(422).send("Business phone number must be 10 digits.");
-//         return;
-//     }
-//     else if (businessZipCode.length != 5) {
-//         response.status(422).send("Business zip code must be 5 digits.");
-//         return;
-//     }
-//     else if (businessName.length < 1) {
-//         response.status(422).send("Business name is required.");
-//         return;
-//     }
-//     else if (businessMailingAddress.length < 1) {
-//         response.status(422).send("Business mailing address is required.");
-//         return;
-//     }
-//     else if (businessCity.length < 1) {
-//         response.status(422).send("Business city is required.");
-//         return;
-//     }
-//     else if (businessState.length < 1) {
-//         response.status(422).send("Business state is required.");
-//         return;
-//     }
-//     else if (plainPassword.length < 1) {
-//         response.status(422).send("Password is required.");
-//         return;
-//     }
-
-//     const session = await mongoose.startSession();
-//     try {
-//         session.startTransaction();
-
-//         //! Check if the email is already in use by any Business or User
-//         const emailExists = await Promise.all([
-//             businessModel.findOne({ primaryContactEmail }).session(session),
-//             userModel.findOne({ email: primaryContactEmail }).session(session)
-//         ]);
-
-//         if (emailExists[0] || emailExists[1]) {
-//             await session.abortTransaction();
-//             response.status(409).send("Email already in use.");
-//             return;
-//         }
-
-//         const hashedPassword = await bcrypt.hash(plainPassword, 10);
-//         //! Create the business
-//         const newBusiness = new businessModel({
-//             businessName, primaryContactEmail, businessPrivacyAgreement, businessMailingAddress,
-//             businessPhoneNumber, businessZipCode, businessState, businessCity, encryptedPassword: hashedPassword
-//         });
-
-//         const savedBusiness = await newBusiness.save({ session });
-//         //! Create the Admin user
-//         const newUser = new userModel({
-//             businessID: savedBusiness._id,
-//             firstName: 'Primary', // Should be supplied or inferred
-//             lastName: 'Contact',  // Should be supplied or inferred
-//             email: primaryContactEmail,
-//             encryptedPassword: hashedPassword,
-//             role: 'Admin'
-//         });
-
-//         await newUser.save({ session });
-
-//         await session.commitTransaction();
-//         response.status(201).send({ message: "Created. New business and primary contact user added.", business: savedBusiness, user: newUser });
-//     } catch (error) {
-//         await session.abortTransaction();
-//         console.error("> Error creating business or user:", error);
-//         response.status(500).send("> Failed to create business or user");
-//     } finally {
-//         session.endSession();
-//     }
-// });
-
 app.post("/businesses", async function(request, response) {
     const {
         businessName,
@@ -354,7 +278,7 @@ app.post("/businesses", async function(request, response) {
 
         const newUser = new userModel({
             businessID: savedBusiness._id,
-            firstName: adminUsersFirstName, // Assuming default names; these should be provided or defaulted properly
+            firstName: adminUsersFirstName,
             lastName: adminUsersLastName,
             email: primaryContactEmail,
             role: 'Admin'
@@ -374,7 +298,6 @@ app.post("/businesses", async function(request, response) {
         session.endSession();
     }
 });
-
 
 //* DELETE a business 
 app.delete("/businesses/:businessID", authorizeRequest, async function(request, response) {
@@ -620,7 +543,6 @@ app.get("/reviews", authorizeRequest, function(request, response) {
     if (request.query.workingType) {
         query['reviewWorkDone'] = request.query.workingType;
     }
-
     // Execute the query to find reviews with the given conditions
     reviewModel.find(query)
     .populate('customerID', 'customerFirstName customerLastName customerPhoneNumber customerAddress')
@@ -748,10 +670,9 @@ app.get('/session', function(request, response) {
                     response.status(204).send(); // No Content
                 return;
                 }
-                // Return both user and business details
                 response.json({
                     firstName: user.firstName,
-                    businessName: user.businessID.businessName, // Assuming businessName is a field you want
+                    businessName: user.businessID.businessName,
                     businessDetails: {
                         email: user.businessID.primaryContactEmail,
                         address: user.businessID.businessMailingAddress,
@@ -776,7 +697,7 @@ app.get('/logout', function(request, response) {
             console.error("Failed to destroy the session during logout.", err);
             return response.status(500).send("Could not log out.");
         }
-        response.clearCookie('connect.sid', { path: '/' }); // Assuming default session cookie name unless customized
+        response.clearCookie('connect.sid', { path: '/' });
         response.status(200).send("Logged out");
     });
 });

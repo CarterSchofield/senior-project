@@ -60,3 +60,17 @@ Project Link: [KareShield GitHub Repo](https://github.com/CarterSchofield/senior
 - [Express.js](https://expressjs.com/)
 - [Mongoose](https://mongoosejs.com/)
 - [Medium](https://medium.com/)
+
+## Images
+
+### Home Page
+
+![Home page](KareShield1.png)
+
+### Dashboard
+
+![Dashboard page](KareShield2.png)
+
+### Sign in Page
+
+![Sign-in page](KareShield3.png)
