@@ -125,18 +125,28 @@
                         <div class="reviewCard">
                             <div class="grid12 reviewShow">
                                 <p class="reviewNameLbl reviewLabel">Customer Name</p>
-                                <p class="showReviewName reviewDisplay">{{ review.customer.customerFirstName + " " + review.customer.customerLastName}}</p>
+                                <p class="showReviewName reviewDisplay">{{ review.customer ? review.customer.customerFirstName + " " + review.customer.customerLastName : 'Customer details not available' }}</p>
                                 <p class="reviewBusinessLbl reviewLabel">Reviewing Business</p>
-                                <p class="showReviewBusiness reviewDisplay">{{review.business.businessName }}</p>
+                                <p class="showReviewBusiness reviewDisplay">
+                                    {{ review.business ? review.business.businessName : 'Business details not available' }}
+                                </p>
                                 <p class="reviewWorkTypeLbl reviewLabel">Work Type</p>
-                                <p class="showReviewWorkType reviewDisplay">{{review.reviewWorkDone }}</p>
+                                <p class="showReviewWorkType reviewDisplay">
+                                    {{ review.reviewWorkDone || 'Not specified' }}
+                                </p>
                                 <div class="line"></div>
                                 <p class="reviewDescriptionLbl reviewLabel">Review Description</p>
-                                <p class="showReviewDescription reviewDisplay">{{ review.reviewDescription }}</p>
+                                <p class="showReviewDescription reviewDisplay">
+                                    {{ review.reviewDescription || 'No description provided' }}
+                                </p>
                                 <p class="reviewDateLbl reviewLabel">Date Reviewed:</p>
-                                <p class="showReviewDate reviewLabel">{{ review.timestamp }}</p>
+                                <p class="showReviewDate reviewLabel">
+                                    {{ review.timestamp ? new Date(review.timestamp).toLocaleDateString() : 'Date not available' }}
+                                </p>
                                 <p class="reviewRatingLbl reviewLabel">Rating</p>
-                                <p class="showReviewRating reviewDisplay">{{ review.rating }}</p>
+                                <p class="showReviewRating reviewDisplay">
+                                    {{ review.rating || 'Rating not provided' }}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -172,32 +182,40 @@
                 </div>
             </div>
             <div v-else-if="writeReviewOnCustomerPopup" class="writeActualReview">
-                <h1>Write Review For <span class="coloredText"> {{ customer.customerFirstName + " " + customer.customerLastName}} </span></h1>
-                <button>hello</button>
-                <!-- <div class="writeReviewInputs">
-                    <p class="createReviewWorkDone createReviewLabel">Work that was done?</p>
-                    <select v-model="workingTypeCreateReview" name="workType" id="workingTypeCreate">
-                        <option value="" disabled selected>Select a work type</option>
-                        <option value="landscaping">Landscaping</option>
-                        <option value="concrete">Concrete</option>
-                        <option value="framing">Framing</option>
-                        <option value="painting">Painting</option>
-                        <option value="Electrical">Electrical</option>
-                        <option value="Plumbing">Plumbing</option>
-                        <option value="Roofing">Roofing</option>
-                        <option value="Carpentry">Carpentry</option>
-                        <option value="HVAC">HVAC</option>
-                        <option value="Masonry">Masonry</option>
-                        <option value="Drywall">Drywall</option>
-                        <option value="Siding">Siding</option>
-                        <option value="Other">Other</option>
-                    </select>
-                    <p class="reviewNameLbl createReviewLabel">Describe your experience</p>
-                    <textarea v-model="reviewDescription" placeholder="Describe your experience..." id="reviewDescription" class="reviewInput"></textarea>
-                    <p class="reviewNameLbl createReviewLabel">Customer Rating (1-5)</p>
-                    <input v-model="reviewRating" placeholder="Rating (1-5)" id="reviewRating" type="number" class="reviewInput">
-                    <button @click="submitReview" class="primaryButton submitReviewButton">Submit Review</button>
-                </div> -->
+                    <h1>Write Review For <span class="coloredText"> {{ customer.customerFirstName + " " + customer.customerLastName}} </span></h1>
+                    <div class="writeReviewForm">
+                        <label for="writeReviewDesc" class="writeReviewLbl" id="writeReviewDescLBL">Write Review Below</label>
+                        <textarea v-model="writeReviewDesc" id="writeReviewDesc" placeholder="Write your review here">
+                        </textarea>
+                        <label for="writeReviewRating" class="writeReviewLbl" id="writeReviewRatingLBL">Rate Your Experience</label>
+                        <select v-model="writeReviewRating" name="rating" id="writeReviewRating">
+                            <option value="" disabled selected>Select a rating</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                        <label for="writeReviewWorkType" class="writeReviewLbl" id="writeReviewWorkTypeLBL">Select Work Type</label>
+                        <select v-model="writeReviewWorkType" name="workType" id="writeReviewWorkType">
+                            <option value="" disabled selected>Select a work type</option>
+                            <option value="landscaping">Landscaping</option>
+                            <option value="concrete">Concrete</option>
+                            <option value="framing">Framing</option>
+                            <option value="painting">Painting</option>
+                            <option value="Electrical">Electrical</option>
+                            <option value="Plumbing">Plumbing</option>
+                            <option value="Roofing">Roofing</option>
+                            <option value="Carpentry">Carpentry</option>
+                            <option value="HVAC">HVAC</option>
+                            <option value="Masonry">Masonry</option>
+                            <option value="Drywall">Drywall</option>
+                            <option value="Siding">Siding</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <button @click="submitReview" class="primaryButton submitReviewButton">Submit Review</button>
+
+                </div>
             </div>
         </main>
 

@@ -361,32 +361,17 @@
     padding:5px;
     border-bottom: 1px solid var(--background);
 }
-.writeActualReview{
-    grid-column:1/13;
-    margin-top:100px;
-    background-color: var(--primaryColor);
-    border-radius: 10px;
-    height:100px;
-}
 .writeActualReview h1 {
-    grid-column:3/10;
+    grid-column:3/11;
     font-size: 2.5em;
     font-weight: 700;
     color: var(--lightText);
     text-align: center;
     padding:20px;
+    border-bottom: 1px solid var(--background);
 }
 .coloredText{
     color: var(--secondaryColor);
-}
-.writeReviewInputs{
-    grid-column:1/13;
-    display:grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap:16px;
-    border-radius: 10px;
-    background-color: var(--primaryColor);
-    padding:25px;
 }
 .createReviewLabel{
     font-size: 1.2em;
@@ -400,4 +385,83 @@
 #workingTypeCreate{
     grid-column:2/12;
     grid-row:2/3;
+}
+.writeActualReview{
+    display: grid;
+    grid-column: 1/13;
+    grid-template-columns: repeat(12, 1fr);
+    gap:16px;
+    border-radius: 10px;
+    margin-top:100px;
+    background-color: var(--primaryColor);
+    padding:25px;
+}
+.writeReviewFormArea{
+    display: grid;
+    grid-column: 1/13;
+    grid-template-columns: repeat(12, 1fr);
+    gap:16px;
+    border-radius: 10px;
+}
+.writeReviewForm{
+    grid-column:1/13;
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap:16px;
+    border-radius: 10px;
+    background-color: var(--primaryColor);
+}
+.writeReviewLbl{
+    grid-column:1/13;
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--lightText);
+    padding:5px;
+}
+#writeReviewDesc{
+    grid-column:2/12;
+    grid-row:2/4;
+    padding:10px;
+    border-radius: 10px;
+    border: 1px solid var(--background);
+    height:150px;
+    text-align: left;
+    font-size: 1.2em;
+    color: var(--darkText);
+
+}
+#writeReviewDescLBL{
+    grid-column:2/12;
+    grid-row:1/2;
+}
+#writeReviewRatingLBL{
+    grid-column:2/5;
+    grid-row:4/5;
+}
+#writeReviewRating{
+    grid-column:2/3;
+    grid-row:5/6;
+}
+#writeReviewWorkTypeLBL{
+    grid-column: 5/12;
+    grid-row:4/5;
+}
+#writeReviewWorkType{
+    grid-column: 5/8;
+    grid-row:5/6;
+}
+.submitReviewButton{
+    grid-column:4/9;
+    grid-row:6/7;
+    margin:0;
+    margin-bottom:15px;
+    margin-top:25px;
+}
+select{
+    border-radius: 15px;
+    height:50px;
+    padding:4px 25px;
+    border:0;
+    color: gray;
+    font-size: 1.2rem;
 }

@@ -457,14 +457,14 @@ app.delete("/customers/:customerID", authorizeRequest, function(request, respons
 app.post("/reviews", authorizeRequest, async function(request, response) {
     console.log("Request body:", request.body);
     const { businessID, userID, customerID, reviewRating, reviewDescription, reviewWorkDone } = request.body;
-    const validWorkTypes = ['landscaping', 'concrete', 'framing', 'painting', 'electrical', 'plumbing', 'roofing', 'carpentry'];
+    const validWorkTypes = ['Landscaping', 'Concrete', 'Framing', 'Painting', 'Electrical', 'Plumbing', 'Roofing', 'Carpentry'];
     if (!businessID) {
         return response.status(400).send("Business ID is required.");
     }
     else if (!userID) {
         return response.status(400).send("User ID is required.");
     }
-    else if (!customerID) {
+    if (!customerID) {
         return response.status(400).send("Customer ID is required.");
     }
     else if (reviewRating < 1 || reviewRating > 5) {
@@ -473,9 +473,9 @@ app.post("/reviews", authorizeRequest, async function(request, response) {
     else if (reviewDescription.length < 1) {
         return response.status(400).send("Review description is required.");
     }
-    else if (!reviewWorkDone || !validWorkTypes.includes(reviewWorkDone)) {
-        return response.status(400).send("Review work done is required. Only one of the following values is allowed: 'landscaping', 'concrete', 'framing', 'painting', 'electrical', 'plumbing', 'roofing', 'carpentry'.");
-    }
+    // else if (!reviewWorkDone || !validWorkTypes.includes(reviewWorkDone)) {
+    //     return response.status(400).send("Review work done is required. Only one of the following values is allowed: 'landscaping', 'concrete', 'framing', 'painting', 'electrical', 'plumbing', 'roofing', 'carpentry'.");
+    // }
     try {
         //! Check if the business, user, and customer exist
         const [businessExists, userExists, customerExists] = await Promise.all([
@@ -577,56 +577,68 @@ app.get("/reviews/search", authorizeRequest, async (req, res) => {
         matchConditions["reviewWorkDone"] = reviewWorkDone;
     }
 
-    reviewModel.aggregate([
-        {
-            $lookup: {
-                from: "customers",
-                localField: "customerID",
-                foreignField: "_id",
-                as: "customer"
+    try {
+        const reviews = await reviewModel.aggregate([
+            {
+                $lookup: {
+                    from: "customers",
+                    localField: "customerID",
+                    foreignField: "_id",
+                    as: "customer"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$customer",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
+                    from: "businesses",
+                    localField: "businessID",
+                    foreignField: "_id",
+                    as: "business"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$business",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $match: matchConditions
+            },
+            {
+                $project: {
+                    _id: 1,
+                    reviewDescription: 1,
+                    rating: 1,
+                    timestamp: 1,
+                    reviewWorkDone: 1,
+                    "customer.customerFirstName": 1,
+                    "customer.customerLastName": 1,
+                    "customer.customerPhoneNumber": 1,
+                    "customer.customerCity": 1,
+                    "business.businessName": 1,
+                    "business.businessPhoneNumber": 1,
+                    "business.businessMailingAddress": 1,
+                    "business.businessCity": 1,
+                    "business.businessState": 1
+                }
             }
-        },
-        {
-            $unwind: "$customer"
-        },
-        {
-            $lookup: {
-                from: "businesses", // Make sure 'businesses' is the correct collection name
-                localField: "businessID",
-                foreignField: "_id",
-                as: "business"
-            }
-        },
-        {
-            $unwind: "$business"
-        },
-        {
-            $match: matchConditions
-        },
-        {
-            $project: {
-                _id: 1,
-                reviewDescription: 1,
-                rating: 1,
-                timestamp: 1,
-                reviewWorkDone: 1,
-                "customer.customerFirstName": 1,
-                "customer.customerLastName": 1,
-                "customer.customerPhoneNumber": 1,
-                "customer.customerCity": 1,
-                "business.businessName": 1,
-                "business.businessPhoneNumber": 1,
-                "business.businessMailingAddress": 1,
-                "business.businessCity": 1,
-                "business.businessState": 1
-            }
+        ]);
+
+        if (reviews.length > 0) {
+            res.json(reviews);
+        } else {
+            res.status(404).send("No reviews found based on the provided search criteria.");
         }
-    ])
-    .then(reviews => res.json(reviews))
-    .catch(error => {
+    } catch (error) {
         console.error("Failed to retrieve reviews:", error);
         res.status(500).send("Error retrieving reviews");
-    });
+    }
 });
 
 //* GET/Retrieve a single review
@@ -668,11 +680,13 @@ app.get('/session', function(request, response) {
                 if (!user) {
                     console.log('No user found for the session');
                     response.status(204).send(); // No Content
-                return;
+                    return;
                 }
                 response.json({
                     firstName: user.firstName,
+                    userID: user._id,
                     businessName: user.businessID.businessName,
+                    businessID: user.businessID._id,  // Include the businessID
                     businessDetails: {
                         email: user.businessID.primaryContactEmail,
                         address: user.businessID.businessMailingAddress,
@@ -689,6 +703,7 @@ app.get('/session', function(request, response) {
         response.status(204).send();
     }
 });
+
 
 //* authentication: logout
 app.get('/logout', function(request, response) {

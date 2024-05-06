@@ -7,12 +7,12 @@ const reviewSchema = new mongoose.Schema({
     businessID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Business',
-        required: true
+        // required: true
     },
     userID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        // required: true
     },
     customerID: {
         type: mongoose.Schema.Types.ObjectId,
@@ -25,19 +25,11 @@ const reviewSchema = new mongoose.Schema({
         required: [true, 'Review description is required.']
     },
     rating: {
-        type: Number,
-        required: [true, 'Rating is required.'],
-        min: [1, 'Rating must be between 1 and 5.'],
-        max: [5, 'Rating must be between 1 and 5.']
+        type: String
+        // required: [true, 'Rating is required.'] // Add validation
     },
     timestamp: {
         type: String,
-        validate: {
-            validator: function(v) {
-                return /\d{2}\/\d{2}\/\d{4}/.test(v);
-            },
-            message: props => `${props.value} is not a valid date!`
-        }
     },
     reviewWorkDone: {
         type: String,

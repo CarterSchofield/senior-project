@@ -81,8 +81,12 @@ Vue.createApp({
             newBusinessCity: '',
             newBusinessState: '',
             newBusinessZip: '',
-            
-
+            writeReviewDesc: '',
+            writeReviewRating: '',
+            writeReviewWorkType: '',
+            selectedCustomer: null,
+            signedInBusinessID: '',
+            signedInUserID: '',
         };
     },
     methods: {
@@ -133,33 +137,42 @@ Vue.createApp({
                 }
             });
         },
+
         async searchReviews() {
             const url = new URL(`${BASE_URL}/reviews/search`);
-            url.searchParams.append("customerFirstName", this.fNameSearchReviewFilter); // Append other parameters as needed
-            url.searchParams.append("customerLastName", this.lNameSearchReviewFilter);
-            url.searchParams.append("customerPhoneNumber", this.phoneSearchReviewFilter);
-            // url.searchParams.append("customerCity", this.citySearchReviewFilter);
-            url.searchParams.append("reviewWorkDone", this.workingTypeReviewFilter);
+            // Append all required search parameters
+            if (this.fNameSearchReviewFilter) {
+                url.searchParams.append("customerFirstName", this.fNameSearchReviewFilter);
+            }
+            if (this.lNameSearchReviewFilter) {
+                url.searchParams.append("customerLastName", this.lNameSearchReviewFilter);
+            }
+            if (this.phoneSearchReviewFilter) {
+                url.searchParams.append("customerPhoneNumber", this.phoneSearchReviewFilter);
+            }
+            if (this.citySearchReviewFilter) { // Uncomment if city filter is needed
+                url.searchParams.append("customerCity", this.citySearchReviewFilter);
+            }
+            if (this.workingTypeReviewFilter) {
+                url.searchParams.append("reviewWorkDone", this.workingTypeReviewFilter);
+            }
             console.log("Search URL:", url);
-        
-            fetch(url, {
-                method: "GET",
-                credentials: 'include',
-                headers: {
-                    "Content-Type": "application/json", // Adjust as necessary, but usually not needed for GET
-                }
-            }).then((response) => {
-                if (response.status == 200) {
-                    response.json().then((data) => {
-                        console.log("Reviews from server:", data);
-                        this.reviews = data;
-                    });
+            
+            try {
+                const response = await fetch(url, {
+                    method: "GET",
+                    credentials: 'include' // Ensures cookies are sent with request
+                });
+                if (response.status === 200) {
+                    const data = await response.json();
+                    console.log("Reviews from server:", data);
+                    this.reviews = data;
                 } else {
-                    console.log("Error loading reviews");
+                    console.log("Error loading reviews:", response.status);
                 }
-            }).catch((error) => {
+            } catch (error) {
                 console.error("Failed to load reviews:", error);
-            });
+            }
         },
 
         clearSearchFilters(){
@@ -168,47 +181,6 @@ Vue.createApp({
             this.phoneSearchReviewFilter = '';
             this.addressSearchReviewFilter = '';
             this.workingTypeReviewFilter = '';
-        },
-
-        createReview() {
-            if (!this.validateReview()){
-                console.log("Review is not valid");
-                return;
-            }
-
-            var today = new Date();
-            var dd = String(today.getDate()).padStart(2, '0');
-            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-            var yyyy = today.getFullYear();
-            today = mm + '/' + dd + '/' + yyyy;
-
-            const data = new URLSearchParams();
-            data.append('businessID', this.business._id);
-            data.append('userID', this.user._id);
-            data.append('customerID', this.customer._id);
-            data.append('reviewDescription', this.reviewContent);
-            data.append('rating', this.reviewRating);
-            data.append('timestamp', today);
-            data.append('reviewWorkDone', this.reviewWorkDone);
-
-            console.log("Creating review with data:", data);
-            fetch(`${BASE_URL}/reviews/`, {
-                method: "POST",
-                credentials: 'include',
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body: data
-            }).then(response => {
-                if (response.status === 201) {
-                    console.log("Review created successfully");
-                    this.getReviews();
-                } else {
-                    console.log("Error creating review");
-                }
-            }).catch(error => {
-                console.log("Network error:", error);
-            });
         },
 
         async customerSearch() {
@@ -240,19 +212,6 @@ Vue.createApp({
             });
         },
 
-        async writeReview(customer) {
-            console.log("Writing review for customer:", customer);
-            this.customer = customer;
-            // this.writeReviewsPopup();
-            this.writeReviewOnCustomerPopup = true;
-            this.writeReviews = false;
-        },
-
-        submitReview() {
-            console.log("Submitting review for customer:", this.customer);
-            // this.createReview();
-            // this.writeReviewOnCustomerPopup = false;
-        },
         login() {
             console.log("Logging in");
             if (!this.validateUserLogin()) {
@@ -301,6 +260,11 @@ Vue.createApp({
                             this.userNotSignedIn = false;
                             this.signedInUsersName = data.firstName; // Assuming the response includes a "firstName" field
                             this.signedInBusinessName = data.businessName;
+                            this.signedInBusinessID = data.businessID;
+                            this.signedInUserID = data.userID; // Make sure this line correctly assigns the userID from the session
+                            // Store these details in localStorage or another persistent state if needed
+                            localStorage.setItem('signedInUserID', data.userID);
+                            localStorage.setItem('signedInBusinessID', data.businessID);
                             localStorage.setItem('signedInUsersName', data.firstName);
                             localStorage.setItem('signedInBusinessName', data.businessName);
                         }).catch(jsonError => {
@@ -308,13 +272,14 @@ Vue.createApp({
                         });
                     } else {
                         console.log("No active session or user not signed in");
-                        // window.location.href = '/login.html'; // Uncomment to redirect when appropriate
+                        // Handle not signed in scenario appropriately
                     }
                 })
                 .catch(error => {
                     console.error("Error loading session:", error);
                 });
         },
+        
 
         logout() {
             fetch(`${BASE_URL}/logout`, {
@@ -502,6 +467,119 @@ Vue.createApp({
             this.registerPage3 = false;
         },
 
+        createReview() {
+            if (!this.validateReview()){
+                console.log("Review is not valid");
+                return;
+            }
+
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy = today.getFullYear();
+            today = mm + '/' + dd + '/' + yyyy;
+
+            const data = new URLSearchParams();
+            data.append('businessID', this.business._id);
+            data.append('userID', this.user._id);
+            data.append('customerID', this.customer._id);
+            data.append('reviewDescription', this.reviewContent);
+            data.append('rating', this.reviewRating);
+            data.append('timestamp', today);
+            data.append('reviewWorkDone', this.reviewWorkDone);
+
+            console.log("Creating review with data:", data);
+            fetch(`${BASE_URL}/reviews/`, {
+                method: "POST",
+                credentials: 'include',
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: data
+            }).then(response => {
+                if (response.status === 201) {
+                    console.log("Review created successfully");
+                    this.getReviews();
+                } else {
+                    console.log("Error creating review");
+                }
+            }).catch(error => {
+                console.log("Network error:", error);
+            });
+        },
+
+        async writeReview(customer) {
+            console.log("Writing review for customer:", customer);
+            this.customer = customer;
+            this.writeReviewOnCustomerPopup = true;
+            this.writeReviews = false;
+            this.loadSession();
+        },
+
+        submitReview() {
+            // console.log("Business ID:", this.businessID);
+            // console.log("User ID:", this.userID);            
+
+            console.log("Submitting review");
+            if (!this.customer) {
+                console.error("No customer selected");
+                return;
+            }
+        
+            // if (!this.validateReview()) {
+            //     console.log("Invalid review");
+            //     return;
+            // }
+
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy = today.getFullYear();
+            today = mm + '/' + dd + '/' + yyyy;
+        
+            const data = new URLSearchParams();
+            data.append("reviewDescription", this.writeReviewDesc);
+            data.append("rating", this.writeReviewRating);
+            data.append("reviewWorkDone", this.writeReviewWorkType);
+            data.append('businessID', this.signedInBusinessID);
+            data.append('userID', this.signedInUserID);
+            data.append("customerID", this.customer._id);
+            data.append("timestamp", today);
+
+        
+            fetch(`${BASE_URL}/reviews/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: data,
+                credentials: 'include'  // Include for cookie-based session handling
+            }).then(response => {
+                if (response.ok) {
+                    console.log("Review submitted successfully");
+                    this.clearReviewForm();
+                    this.loadReviews();  // Reload or update reviews to reflect the new addition
+                } else {
+                    response.text().then(text => console.error("Error submitting review:", text));
+                }
+            }).catch(error => {
+                console.error("Error submitting review:", error);
+            });
+        },
+        
+        
+        
+        clearReviewForm() {
+            this.writeReviewDesc = '';
+            this.writeReviewRating = '';
+            this.writeReviewWorkType = '';
+            this.writeReviewOnCustomerPopup = false;
+        },
+
+        getLoggedInUsersBusinessID() {
+
+        },
+        
 
         //* Validate HTML Fields
         //note: Validation for the user login page
